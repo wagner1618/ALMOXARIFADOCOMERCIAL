@@ -1,0 +1,113 @@
+{% extends "layout_app.html" %}
+{% from "partials/forms.html" import page_actions %}
+{% block titulo %}Setores{% endblock %}
+{% block cabecalho %}Setores{% endblock %}
+
+{% block conteudo %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <p class="text-secondary mb-0">Hierarquia de setores da organização.</p>
+  <div class="d-flex gap-2">
+    {% if current_user.tem_permissao('config.visibilidade') %}
+      <a href="{{ url_for('setores.visibilidade') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-eye me-1"></i>Visibilidade
+      </a>
+    {% endif %}
+    {{ page_actions('Novo setor', url_for('setores.novo')) }}
+  </div>
+</div>
+
+{% if not nos %}
+  <div class="card card-stat"><div class="card-body text-center text-secondary py-5">
+    <i class="bi bi-diagram-3 fs-1 d-block mb-2"></i>
+    Nenhum setor cadastrado ainda.
+  </div></div>
+{% else %}
+<div class="card card-stat">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>Setor</th><th>Código</th><th class="text-center">Compra</th>
+          <th>Centro de custo</th><th class="text-end">Orçamento</th>
+          <th class="text-center">Status</th><th class="text-end">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for no in nos %}
+          {% set s = no.setor %}
+          <tr class="{{ 'opacity-50' if not s.ativo }}">
+            <td>
+              <span style="display:inline-block;width:{{ no.profundidade * 1.5 }}rem"></span>
+              {% if no.profundidade > 0 %}<i class="bi bi-arrow-return-right text-secondary me-1"></i>{% endif %}
+              <i class="bi bi-diagram-3 me-1 text-primary"></i>{{ s.nome }}
+            </td>
+            <td><span class="text-secondary">{{ s.codigo or '—' }}</span></td>
+            <td class="text-center">
+              {% if s.poder_compra %}<i class="bi bi-check-circle-fill text-success"></i>{% else %}—{% endif %}
+            </td>
+            <td>{{ s.centro_custo or '—' }}</td>
+            <td class="text-end">{{ s.orcamento_anual | moeda if s.orcamento_anual else '—' }}</td>
+            <td class="text-center">
+              {% if s.ativo %}<span class="badge text-bg-success">Ativo</span>
+              {% else %}<span class="badge text-bg-secondary">Inativo</span>{% endif %}
+            </td>
+            <td class="text-end">
+              <a href="{{ url_for('setores.editar', setor_id=s.id) }}"
+                 class="btn btn-sm btn-outline-secondary" title="Editar"><i class="bi bi-pencil"></i></a>
+              <a href="{{ url_for('setores.novo') }}?pai={{ s.id }}"
+                 class="btn btn-sm btn-outline-secondary" title="Adicionar subsetor"><i class="bi bi-plus"></i></a>
+              {% if s.ativo %}
+              <button class="btn btn-sm btn-outline-danger" title="Inativar"
+                      data-bs-toggle="modal" data-bs-target="#modalInativar"
+                      data-id="{{ s.id }}" data-nome="{{ s.nome }}"><i class="bi bi-x-lg"></i></button>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+<!-- Modal de confirmação de inativação -->
+<div class="modal fade" id="modalInativar" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form method="post" id="formInativar">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Inativar setor</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p>Inativar o setor <strong id="inativarNome"></strong>?</p>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="cascata" value="1" id="cascata">
+            <label class="form-check-label" for="cascata">Inativar também os subsetores</label>
+          </div>
+          <p class="small text-secondary mt-2 mb-0">
+            O histórico é preservado. Setores inativos não aparecem em novas operações.
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-danger">Inativar</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const modal = document.getElementById('modalInativar');
+  modal.addEventListener('show.bs.modal', function (ev) {
+    const btn = ev.relatedTarget;
+    const id = btn.getAttribute('data-id');
+    document.getElementById('inativarNome').textContent = btn.getAttribute('data-nome');
+    document.getElementById('formInativar').action = '/setores/' + id + '/inativar';
+  });
+</script>
+{% endblock %}

@@ -72,6 +72,9 @@ select = ["E", "F", "I", "B", "UP", "C4", "SIM", "RUF"]
 ignore = [
     "B008",   # chamadas de função em defaults (padrão Flask/WTForms)
     "UP047",  # funções genéricas via TypeVar (padrão de decorators)
+    "RUF001", # caracteres "ambíguos" em strings — esperado em pt-BR (nbsp, …, “”)
+    "RUF002", # idem em docstrings
+    "RUF003", # idem em comentários
 ]
 
 [tool.ruff.lint.isort]

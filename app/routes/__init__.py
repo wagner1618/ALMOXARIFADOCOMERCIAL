@@ -7,7 +7,13 @@ from flask import Flask
 
 def register_blueprints(app: Flask) -> None:
     from app.routes.auth import bp as auth_bp
+    from app.routes.categorias import bp as categorias_bp
+    from app.routes.localizacoes import bp as localizacoes_bp
     from app.routes.main import bp as main_bp
+    from app.routes.setores import bp as setores_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(main_bp)
+    app.register_blueprint(setores_bp)
+    app.register_blueprint(categorias_bp)
+    app.register_blueprint(localizacoes_bp)

@@ -1,0 +1,21 @@
+{% extends "layout_app.html" %}
+{% from "partials/forms.html" import campo %}
+{% block titulo %}{{ titulo }}{% endblock %}
+{% block cabecalho %}{{ titulo }}{% endblock %}
+
+{% block conteudo %}
+<div class="row"><div class="col-lg-6">
+  <div class="card card-stat"><div class="card-body p-4">
+    <form method="post" novalidate>
+      {{ form.hidden_tag() }}
+      {{ campo(form.nome) }}
+      {{ campo(form.descricao) }}
+      {{ campo(form.ativo) }}
+      <div class="d-flex gap-2 mt-3">
+        {{ form.submit(class="btn btn-primary") }}
+        <a href="{{ url_for('categorias.listar') }}" class="btn btn-light">Cancelar</a>
+      </div>
+    </form>
+  </div></div>
+</div></div>
+{% endblock %}

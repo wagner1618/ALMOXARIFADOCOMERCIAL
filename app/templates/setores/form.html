@@ -1,0 +1,41 @@
+{% extends "layout_app.html" %}
+{% from "partials/forms.html" import campo %}
+{% block titulo %}{{ titulo }}{% endblock %}
+{% block cabecalho %}{{ titulo }}{% endblock %}
+
+{% block conteudo %}
+<div class="row">
+  <div class="col-lg-7">
+    <div class="card card-stat">
+      <div class="card-body p-4">
+        <form method="post" novalidate>
+          {{ form.hidden_tag() }}
+          <div class="row">
+            <div class="col-md-8">{{ campo(form.nome) }}</div>
+            <div class="col-md-4">{{ campo(form.codigo) }}</div>
+          </div>
+          {{ campo(form.setor_pai_id, "Deixe em “setor raiz” para um setor principal.") }}
+
+          <hr class="my-3">
+          <h2 class="h6 text-secondary">Compras e orçamento</h2>
+          {{ campo(form.poder_compra, "Habilita registrar fornecedores, notas fiscais e entradas valoradas.") }}
+          <div class="row">
+            <div class="col-md-6">{{ campo(form.centro_custo) }}</div>
+            <div class="col-md-6">{{ campo(form.orcamento_anual) }}</div>
+          </div>
+
+          <hr class="my-3">
+          <h2 class="h6 text-secondary">Visibilidade e status</h2>
+          {{ campo(form.permite_visualizacao_externa, "Permite que outros setores (conforme regras) vejam este estoque.") }}
+          {% if setor is defined %}{{ campo(form.ativo) }}{% endif %}
+
+          <div class="d-flex gap-2 mt-3">
+            {{ form.submit(class="btn btn-primary") }}
+            <a href="{{ url_for('setores.listar') }}" class="btn btn-light">Cancelar</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

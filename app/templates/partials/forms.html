@@ -1,0 +1,34 @@
+{# Renderiza um campo WTForms com estilos Bootstrap, tratando tipos comuns. #}
+{% macro campo(field, ajuda="") %}
+  {% set tipo = field.type %}
+  {% if tipo == 'BooleanField' %}
+    <div class="form-check mb-3">
+      {{ field(class="form-check-input" + (' is-invalid' if field.errors else '')) }}
+      {{ field.label(class="form-check-label") }}
+      {% if ajuda %}<div class="form-text">{{ ajuda }}</div>{% endif %}
+      {% for e in field.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+    </div>
+  {% else %}
+    <div class="mb-3">
+      {{ field.label(class="form-label") }}
+      {% if tipo == 'SelectField' %}
+        {{ field(class="form-select" + (' is-invalid' if field.errors else '')) }}
+      {% elif tipo == 'TextAreaField' %}
+        {{ field(class="form-control" + (' is-invalid' if field.errors else ''), rows=3) }}
+      {% else %}
+        {{ field(class="form-control" + (' is-invalid' if field.errors else '')) }}
+      {% endif %}
+      {% if ajuda %}<div class="form-text">{{ ajuda }}</div>{% endif %}
+      {% for e in field.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
+    </div>
+  {% endif %}
+{% endmacro %}
+
+{# Cabeçalho de página com título e botão de ação opcional. #}
+{% macro page_actions(botao_texto=None, botao_url=None, botao_icone='bi-plus-lg') %}
+  {% if botao_texto and botao_url %}
+    <a href="{{ botao_url }}" class="btn btn-primary">
+      <i class="bi {{ botao_icone }} me-1"></i>{{ botao_texto }}
+    </a>
+  {% endif %}
+{% endmacro %}

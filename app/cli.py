@@ -120,6 +120,21 @@ def seed_cmd(demo: bool) -> None:
     db.session.flush()
     terciario.atualizar_path()
 
+    # Categorias e uma localização de exemplo.
+    from app.models.categoria import Categoria
+    from app.models.localizacao import Localizacao
+
+    for nome_cat in ("Informática", "Material de Escritório", "Limpeza", "Mobiliário"):
+        db.session.add(Categoria(organizacao_id=org.id, nome=nome_cat))
+    db.session.add(
+        Localizacao(
+            organizacao_id=org.id,
+            setor_id=central.id,
+            nome="Prateleira A1",
+            descricao="Estoque principal",
+        )
+    )
+
     senha = "Almox@2026"
     setup.criar_usuario_admin(
         org,

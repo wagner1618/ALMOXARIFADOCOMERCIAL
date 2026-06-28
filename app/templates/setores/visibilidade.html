@@ -1,0 +1,65 @@
+{% extends "layout_app.html" %}
+{% from "partials/forms.html" import campo %}
+{% block titulo %}Visibilidade entre setores{% endblock %}
+{% block cabecalho %}Visibilidade entre setores{% endblock %}
+
+{% block conteudo %}
+<p class="text-secondary">
+  Por padrão, cada setor vê apenas o próprio estoque e o de sua subárvore. Aqui você
+  libera a <strong>visualização (somente leitura)</strong> do estoque de um setor para outro.
+</p>
+
+<div class="row g-3">
+  <div class="col-lg-5">
+    <div class="card card-stat">
+      <div class="card-body p-4">
+        <h2 class="h6 mb-3">Nova regra</h2>
+        <form method="post" novalidate>
+          {{ form.hidden_tag() }}
+          {{ campo(form.setor_observador_id) }}
+          {{ campo(form.setor_alvo_id) }}
+          {{ campo(form.inclui_subarvore) }}
+          {{ form.submit(class="btn btn-primary") }}
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-7">
+    <div class="card card-stat">
+      <div class="card-body p-0">
+        {% if not regras %}
+          <div class="text-center text-secondary py-5">
+            <i class="bi bi-eye-slash fs-1 d-block mb-2"></i>Nenhuma regra de visibilidade.
+          </div>
+        {% else %}
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr><th>Setor que visualiza</th><th>Estoque visível</th>
+                <th class="text-center">Subárvore</th><th></th></tr>
+          </thead>
+          <tbody>
+            {% for r in regras %}
+            <tr>
+              <td><i class="bi bi-person-badge me-1 text-primary"></i>{{ nomes.get(r.setor_observador_id, '—') }}</td>
+              <td><i class="bi bi-box me-1 text-secondary"></i>{{ nomes.get(r.setor_alvo_id, '—') }}</td>
+              <td class="text-center">
+                {% if r.inclui_subarvore %}<i class="bi bi-check-circle-fill text-success"></i>{% else %}—{% endif %}
+              </td>
+              <td class="text-end">
+                <form method="post" action="{{ url_for('setores.remover_visibilidade', regra_id=r.id) }}"
+                      onsubmit="return confirm('Remover esta regra?')">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
