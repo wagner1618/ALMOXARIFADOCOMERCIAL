@@ -1,0 +1,105 @@
+{% extends "layout_app.html" %}
+{% block titulo %}Pedido #{{ pedido.numero }}{% endblock %}
+{% block cabecalho %}Pedido de compra #{{ pedido.numero }}{% endblock %}
+
+{% block conteudo %}
+<div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-2">
+  <div>
+    <span class="badge text-bg-{{ pedido.cor_status }} fs-6">{{ pedido.rotulo_status }}</span>
+    <span class="text-secondary ms-2">Exercício {{ pedido.exercicio }}</span>
+  </div>
+  <div class="d-flex gap-2">
+    {% if pedido.editavel and current_user.tem_permissao('compra.pedido') %}
+      <a href="{{ url_for('compras.pedido_editar', pedido_id=pedido.id) }}" class="btn btn-outline-secondary">
+        <i class="bi bi-pencil me-1"></i>Editar</a>
+    {% endif %}
+    {% if pedido.status == 'RASCUNHO' and current_user.tem_permissao('compra.aprovar') %}
+      <form method="post" action="{{ url_for('compras.pedido_transicao', pedido_id=pedido.id, acao='aprovar') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn btn-success"><i class="bi bi-check2-circle me-1"></i>Aprovar</button>
+      </form>
+    {% endif %}
+    {% if pedido.status == 'APROVADO' and current_user.tem_permissao('compra.aprovar') %}
+      <form method="post" action="{{ url_for('compras.pedido_transicao', pedido_id=pedido.id, acao='empenhar') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn btn-primary"><i class="bi bi-bookmark-check me-1"></i>Empenhar</button>
+      </form>
+    {% endif %}
+    {% if pedido.status in ['APROVADO', 'EMPENHADO'] and current_user.tem_permissao('compra.aprovar') %}
+      <form method="post" action="{{ url_for('compras.pedido_transicao', pedido_id=pedido.id, acao='concluir') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn btn-outline-success"><i class="bi bi-flag me-1"></i>Concluir</button>
+      </form>
+    {% endif %}
+    {% if pedido.status not in ['CONCLUIDO', 'CANCELADO'] and current_user.tem_permissao('compra.pedido') %}
+      <form method="post" action="{{ url_for('compras.pedido_transicao', pedido_id=pedido.id, acao='cancelar') }}"
+            onsubmit="return confirm('Cancelar este pedido?')">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn btn-outline-danger"><i class="bi bi-x-circle me-1"></i>Cancelar</button>
+      </form>
+    {% endif %}
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-8">
+    <div class="card card-stat mb-3"><div class="card-body">
+      <dl class="row mb-0">
+        <dt class="col-sm-3 text-secondary">Setor</dt><dd class="col-sm-9">{{ pedido.setor.nome }}</dd>
+        <dt class="col-sm-3 text-secondary">Fornecedor</dt>
+        <dd class="col-sm-9">{{ pedido.fornecedor.nome if pedido.fornecedor else '—' }}</dd>
+        <dt class="col-sm-3 text-secondary">Solicitante</dt>
+        <dd class="col-sm-9">{{ pedido.solicitante.nome if pedido.solicitante else '—' }}</dd>
+        {% if pedido.aprovador %}
+          <dt class="col-sm-3 text-secondary">Aprovado por</dt>
+          <dd class="col-sm-9">{{ pedido.aprovador.nome }} em {{ pedido.data_aprovacao | data }}</dd>
+        {% endif %}
+        {% if pedido.justificativa %}
+          <dt class="col-sm-3 text-secondary">Justificativa</dt><dd class="col-sm-9">{{ pedido.justificativa }}</dd>
+        {% endif %}
+      </dl>
+    </div></div>
+
+    <div class="card card-stat"><div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead class="table-light"><tr>
+          <th>Item</th><th class="text-end">Qtd.</th>
+          <th class="text-end">Valor unit.</th><th class="text-end">Total</th>
+        </tr></thead>
+        <tbody>
+          {% for it in pedido.itens %}
+          <tr>
+            <td>{{ it.descricao }}{% if it.produto %}<br><small class="text-secondary">{{ it.produto.sku }}</small>{% endif %}</td>
+            <td class="text-end">{{ it.quantidade | numero(3) }}</td>
+            <td class="text-end">{{ it.valor_unitario | moeda }}</td>
+            <td class="text-end">{{ it.valor_total | moeda }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot><tr class="fw-bold"><td colspan="3" class="text-end">Total estimado</td>
+          <td class="text-end">{{ pedido.valor_estimado | moeda }}</td></tr></tfoot>
+      </table>
+    </div></div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card card-stat"><div class="card-body">
+      <h2 class="h6">Orçamento do setor · {{ pedido.exercicio }}</h2>
+      {% if situacao.tem_orcamento %}
+        <dl class="row small mb-0">
+          <dt class="col-7 text-secondary">Orçamento anual</dt>
+          <dd class="col-5 text-end">{{ situacao.orcamento | moeda }}</dd>
+          <dt class="col-7 text-secondary">Comprometido</dt>
+          <dd class="col-5 text-end">{{ situacao.consumido | moeda }}</dd>
+          <dt class="col-7 text-secondary">Disponível</dt>
+          <dd class="col-5 text-end {{ 'text-danger' if situacao.disponivel < 0 }}">
+            {{ situacao.disponivel | moeda }}</dd>
+        </dl>
+      {% else %}
+        <p class="text-secondary small mb-0">Sem orçamento anual definido para este setor.</p>
+      {% endif %}
+    </div></div>
+  </div>
+</div>
+<a href="{{ url_for('compras.pedidos') }}" class="btn btn-light mt-3"><i class="bi bi-arrow-left me-1"></i>Voltar</a>
+{% endblock %}

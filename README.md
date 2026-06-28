@@ -7,14 +7,16 @@ compras (privadas e públicas — Lei nº 14.133/2021), documentos em PDF e audi
 Construída com tecnologias **100% gratuitas / open source**. Interface, mensagens e
 documentação em **português do Brasil**.
 
-> **Status atual:** Fases 0 a 5 concluídas — multi-tenant, autenticação (Argon2 + 2FA
+> **Status atual:** Fases 0 a 5b concluídas — multi-tenant, autenticação (Argon2 + 2FA
 > opcional), RBAC com escopo de setor, **hierarquia de setores e visibilidade**, cadastros
 > base (categorias/localizações), **catálogo de produtos (consumível/durável) com campos
 > customizáveis (JSONB) e import/export Excel**, **estoque de consumíveis** (saldos por setor,
 > entrada/saída/lote transacional, movimentações append-only, alertas de estoque mínimo),
 > **transferências com confirmação em duas etapas** (em trânsito, conferência, divergência e
 > correção), **ativos/patrimônio** (ciclo de vida completo, depreciação, recertificação,
-> termo de responsabilidade), auditoria, dashboard e UI base. As próximas fases (compras,
+> termo de responsabilidade), **compras e controle financeiro** (fornecedores, pedidos com
+> aprovação por alçada e controle de orçamento, notas fiscais com anexo PDF/XML e entrada
+> valorada), auditoria, dashboard e UI base. As próximas fases (compras públicas/Lei 14.133,
 > documentos, relatórios) seguem o roadmap em
 > [`PROMPT_SISTEMA_COMERCIAL.md`](PROMPT_SISTEMA_COMERCIAL.md).
 
@@ -46,6 +48,12 @@ documentação em **português do Brasil**.
   **ciclo de vida** completo (em estoque → em uso → manutenção → baixa), destinação com
   **termo de responsabilidade**, transferência/retorno/redestinação, **recertificação anual**
   (alerta de revisão vencida), **depreciação linear** e bloqueio de inservível para uso.
+- 🛒 **Compras e controle financeiro** (§7.9): cadastro de **fornecedores** (CNPJ/CPF),
+  **pedidos de compra** por setor com poder de compra — fluxo rascunho → aprovado → empenhado
+  → concluído, **aprovação por alçada** (regra dos dois olhos opcional) e **controle de
+  orçamento anual** (alerta sempre; bloqueio configurável ao estourar); **notas fiscais** com
+  anexo **PDF/XML** armazenado e **entrada valorada**: consumível atualiza o custo médio,
+  durável gera um ativo por unidade com valor de aquisição — tudo rastreável item → NF.
 - 🧾 **Auditoria append-only** de ações sensíveis.
 - 🎨 **UI white-label:** Bootstrap 5.3 + HTMX + Alpine.js, tema (logo/cores) por
   organização, sidebar colável, dashboard com gráficos (Chart.js). Tudo no padrão BR.

@@ -113,6 +113,7 @@ def entrada(
     usuario_id: int | None = None,
     observacoes: str | None = None,
     lote_id: int | None = None,
+    nota_fiscal_id: int | None = None,
     commit: bool = True,
 ) -> Movimentacao:
     quantidade = _dec(quantidade)
@@ -139,6 +140,7 @@ def entrada(
         usuario_id=usuario_id,
         observacoes=observacoes,
         lote_id=lote_id,
+        nota_fiscal_id=nota_fiscal_id,
     )
     db.session.add(mov)
     if commit:

@@ -1,0 +1,68 @@
+{% extends "layout_app.html" %}
+{% from "partials/forms.html" import page_actions %}
+{% block titulo %}Fornecedores{% endblock %}
+{% block cabecalho %}Fornecedores{% endblock %}
+
+{% block conteudo %}
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+  <p class="text-secondary mb-0">Quem fornece materiais e serviços à organização.</p>
+  {{ page_actions('Novo fornecedor', url_for('compras.fornecedor_novo')) }}
+</div>
+
+<form method="get" class="card card-stat mb-3"><div class="card-body py-3">
+  <div class="row g-2 align-items-end">
+    <div class="col-md-6">
+      <label class="form-label small mb-1">Buscar</label>
+      <input type="search" name="q" value="{{ busca }}" class="form-control" placeholder="Nome ou documento">
+    </div>
+    <div class="col-md-2 d-grid">
+      <button class="btn btn-primary"><i class="bi bi-search me-1"></i>Filtrar</button>
+    </div>
+  </div>
+</div></form>
+
+{% if not paginacao.items %}
+  <div class="card card-stat"><div class="card-body text-center text-secondary py-5">
+    <i class="bi bi-truck fs-1 d-block mb-2"></i>Nenhum fornecedor cadastrado.
+  </div></div>
+{% else %}
+<div class="card card-stat"><div class="table-responsive">
+  <table class="table table-hover align-middle mb-0">
+    <thead class="table-light"><tr>
+      <th>Nome</th><th>Tipo</th><th>Documento</th><th>Contato</th>
+      <th class="text-center">Status</th><th class="text-end">Ações</th>
+    </tr></thead>
+    <tbody>
+      {% for f in paginacao.items %}
+      <tr class="{{ 'opacity-50' if not f.ativo }}">
+        <td>{{ f.nome }}</td>
+        <td><span class="badge text-bg-light">{{ f.tipo_pessoa }}</span></td>
+        <td>{{ f.documento or '—' }}</td>
+        <td class="text-secondary">{{ f.contato or f.email or f.telefone or '—' }}</td>
+        <td class="text-center">
+          {% if f.ativo %}<span class="badge text-bg-success">Ativo</span>
+          {% else %}<span class="badge text-bg-secondary">Inativo</span>{% endif %}
+        </td>
+        <td class="text-end">
+          <a href="{{ url_for('compras.fornecedor_editar', fornecedor_id=f.id) }}"
+             class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+
+{% if paginacao.pages > 1 %}
+<nav class="mt-3"><ul class="pagination justify-content-center">
+  <li class="page-item {{ 'disabled' if not paginacao.has_prev }}">
+    <a class="page-link" href="{{ url_for('compras.fornecedores', page=paginacao.prev_num, q=busca) }}">Anterior</a>
+  </li>
+  <li class="page-item disabled"><span class="page-link">{{ paginacao.page }} / {{ paginacao.pages }}</span></li>
+  <li class="page-item {{ 'disabled' if not paginacao.has_next }}">
+    <a class="page-link" href="{{ url_for('compras.fornecedores', page=paginacao.next_num, q=busca) }}">Próxima</a>
+  </li>
+</ul></nav>
+{% endif %}
+{% endif %}
+{% endblock %}

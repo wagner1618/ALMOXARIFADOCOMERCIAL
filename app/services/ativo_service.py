@@ -45,6 +45,7 @@ def _mov(
     destino_id: int | None = None,
     usuario_id: int | None = None,
     obs: str | None = None,
+    nota_fiscal_id: int | None = None,
 ) -> None:
     db.session.add(
         Movimentacao(
@@ -56,6 +57,7 @@ def _mov(
             destino_setor_id=destino_id,
             usuario_id=usuario_id,
             observacoes=obs,
+            nota_fiscal_id=nota_fiscal_id,
         )
     )
 
@@ -90,6 +92,7 @@ def criar_ativo(
     dados: dict[str, Any],
     campos: dict | None = None,
     usuario_id: int | None = None,
+    nota_fiscal_id: int | None = None,
     commit: bool = True,
 ) -> Ativo:
     _validar_unicidade(
@@ -108,6 +111,7 @@ def criar_ativo(
         destino_id=ativo.setor_atual_id,
         usuario_id=usuario_id,
         obs="Cadastro do ativo no patrimônio",
+        nota_fiscal_id=nota_fiscal_id,
     )
     if commit:
         db.session.commit()

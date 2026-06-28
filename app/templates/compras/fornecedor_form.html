@@ -1,0 +1,33 @@
+{% extends "layout_app.html" %}
+{% from "partials/forms.html" import campo %}
+{% block titulo %}{{ titulo }}{% endblock %}
+{% block cabecalho %}{{ titulo }}{% endblock %}
+
+{% block conteudo %}
+<div class="row"><div class="col-lg-8">
+  <div class="card card-stat"><div class="card-body p-4">
+    <form method="post" novalidate>
+      {{ form.hidden_tag() }}
+      <div class="row">
+        <div class="col-md-8">{{ campo(form.nome) }}</div>
+        <div class="col-md-4">{{ campo(form.tipo_pessoa) }}</div>
+      </div>
+      <div class="row">
+        <div class="col-md-6">{{ campo(form.documento, "CNPJ ou CPF — único na organização.") }}</div>
+        <div class="col-md-6">{{ campo(form.inscricao_estadual) }}</div>
+      </div>
+      <div class="row">
+        <div class="col-md-6">{{ campo(form.contato) }}</div>
+        <div class="col-md-6">{{ campo(form.telefone) }}</div>
+      </div>
+      {{ campo(form.email) }}
+      {{ campo(form.endereco) }}
+      {{ campo(form.observacoes) }}
+      <div class="d-flex gap-2 mt-3">
+        {{ form.submit(class="btn btn-primary") }}
+        <a href="{{ url_for('compras.fornecedores') }}" class="btn btn-light">Cancelar</a>
+      </div>
+    </form>
+  </div></div>
+</div></div>
+{% endblock %}

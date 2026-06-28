@@ -1,0 +1,69 @@
+{% extends "layout_app.html" %}
+{% block titulo %}NF {{ nota.numero }}{% endblock %}
+{% block cabecalho %}Nota fiscal {{ nota.numero }}{% if nota.serie %}/{{ nota.serie }}{% endif %}{% endblock %}
+
+{% block conteudo %}
+<div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-2">
+  <span class="badge text-bg-{{ nota.cor_status }} fs-6">{{ nota.rotulo_status }}</span>
+  <div class="d-flex gap-2">
+    {% if nota.arquivo_pdf %}
+      <a href="{{ url_for('compras.nota_anexo', nota_id=nota.id, tipo='pdf') }}" class="btn btn-outline-danger">
+        <i class="bi bi-file-earmark-pdf me-1"></i>PDF</a>
+    {% endif %}
+    {% if nota.arquivo_xml %}
+      <a href="{{ url_for('compras.nota_anexo', nota_id=nota.id, tipo='xml') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-filetype-xml me-1"></i>XML</a>
+    {% endif %}
+    {% if not nota.lancada and current_user.tem_permissao('compra.entrada_valorada') %}
+      <form method="post" action="{{ url_for('compras.nota_lancar', nota_id=nota.id) }}"
+            onsubmit="return confirm('Lançar a entrada valorada desta nota? A operação é irreversível.')">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn btn-success"><i class="bi bi-box-arrow-in-down me-1"></i>Lançar entrada valorada</button>
+      </form>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card card-stat mb-3"><div class="card-body">
+  <dl class="row mb-0">
+    <dt class="col-sm-3 text-secondary">Fornecedor</dt><dd class="col-sm-9">{{ nota.fornecedor.nome }}</dd>
+    <dt class="col-sm-3 text-secondary">Setor de entrada</dt><dd class="col-sm-9">{{ nota.setor.nome }}</dd>
+    {% if nota.pedido %}
+      <dt class="col-sm-3 text-secondary">Pedido vinculado</dt>
+      <dd class="col-sm-9"><a href="{{ url_for('compras.pedido_detalhe', pedido_id=nota.pedido.id) }}">#{{ nota.pedido.numero }}</a></dd>
+    {% endif %}
+    <dt class="col-sm-3 text-secondary">Emissão / Entrada</dt>
+    <dd class="col-sm-9">{{ nota.data_emissao | data }} · {{ nota.data_entrada | data }}</dd>
+    {% if nota.chave_nfe %}
+      <dt class="col-sm-3 text-secondary">Chave NF-e</dt><dd class="col-sm-9"><code>{{ nota.chave_nfe }}</code></dd>
+    {% endif %}
+  </dl>
+</div></div>
+
+<div class="card card-stat"><div class="table-responsive">
+  <table class="table align-middle mb-0">
+    <thead class="table-light"><tr>
+      <th>Item</th><th>Tipo</th><th class="text-end">Qtd.</th>
+      <th class="text-end">Valor unit.</th><th class="text-end">Total</th>
+    </tr></thead>
+    <tbody>
+      {% for it in nota.itens %}
+      <tr>
+        <td>{{ it.descricao }}{% if it.produto %}<br><small class="text-secondary">{{ it.produto.sku }}</small>{% endif %}</td>
+        <td>
+          {% if it.produto and it.produto.is_consumivel %}<span class="badge text-bg-info">Consumível</span>
+          {% elif it.produto %}<span class="badge text-bg-warning">Durável</span>
+          {% else %}<span class="badge text-bg-light">—</span>{% endif %}
+        </td>
+        <td class="text-end">{{ it.quantidade | numero(3) }}</td>
+        <td class="text-end">{{ it.valor_unitario | moeda }}</td>
+        <td class="text-end">{{ it.valor_total | moeda }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+    <tfoot><tr class="fw-bold"><td colspan="4" class="text-end">Total da nota</td>
+      <td class="text-end">{{ nota.valor_total | moeda }}</td></tr></tfoot>
+  </table>
+</div></div>
+<a href="{{ url_for('compras.notas') }}" class="btn btn-light mt-3"><i class="bi bi-arrow-left me-1"></i>Voltar</a>
+{% endblock %}

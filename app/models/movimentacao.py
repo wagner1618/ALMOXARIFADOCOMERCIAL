@@ -97,7 +97,10 @@ class Movimentacao(TenantMixin, TimestampMixin, db.Model):
     lote_id: Mapped[int | None] = mapped_column(
         ForeignKey("lotes_movimentacao.id", ondelete="SET NULL"), nullable=True, index=True
     )
-    # documento_id / nota_fiscal_id virão nas fases de documentos e compras.
+    nota_fiscal_id: Mapped[int | None] = mapped_column(
+        ForeignKey("notas_fiscais.id", ondelete="SET NULL"), nullable=True, index=True
+    )
+    # documento_id virá na fase de documentos.
 
     produto: Mapped[Produto | None] = relationship()
     usuario: Mapped[Usuario | None] = relationship()

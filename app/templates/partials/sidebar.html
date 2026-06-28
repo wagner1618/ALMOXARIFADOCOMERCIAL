@@ -55,6 +55,13 @@
     {{ item('ativos.listar', 'Ativos', 'bi-pc-display', 'ativo.ver') }}
     {{ em_breve('Empréstimos', 'bi-box-arrow-right', 'emprestimo.gerenciar') }}
 
+    <div class="nav-section">Compras</div>
+    {{ item('compras.fornecedores', 'Fornecedores', 'bi-shop', 'fornecedor.gerenciar') }}
+    {{ item('compras.pedidos', 'Pedidos', 'bi-cart', 'compra.pedido',
+            ativos=['compras.pedidos','compras.pedido_novo','compras.pedido_detalhe','compras.pedido_editar']) }}
+    {{ item('compras.notas', 'Notas fiscais', 'bi-receipt', 'compra.nota_fiscal',
+            ativos=['compras.notas','compras.nota_nova','compras.nota_detalhe']) }}
+
     <div class="nav-section">Cadastros</div>
     {{ item('setores.listar', 'Setores', 'bi-diagram-3', 'setor.gerenciar') }}
     {{ item('categorias.listar', 'Categorias', 'bi-tags', 'setor.gerenciar') }}
