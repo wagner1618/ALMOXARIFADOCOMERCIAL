@@ -1,0 +1,13 @@
+"""Blueprints da aplicação. ``register_blueprints`` é chamado pelo factory."""
+
+from __future__ import annotations
+
+from flask import Flask
+
+
+def register_blueprints(app: Flask) -> None:
+    from app.routes.auth import bp as auth_bp
+    from app.routes.main import bp as main_bp
+
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(main_bp)

@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}{{ app_name }}{% endblock %} · {{ marca.nome }}</title>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap-icons/bootstrap-icons.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  {% block head_extra %}{% endblock %}
+</head>
+<body style="--almox-primaria: {{ marca.cor_primaria }}; --almox-secundaria: {{ marca.cor_secundaria }};">
+{% block corpo %}{% endblock %}
+
+  <script src="{{ url_for('static', filename='vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='vendor/htmx/htmx.min.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='vendor/alpine/alpine.min.js') }}" defer></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

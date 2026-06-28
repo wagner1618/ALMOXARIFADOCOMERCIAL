@@ -1,0 +1,84 @@
+{% extends "layout_app.html" %}
+{% block titulo %}Painel{% endblock %}
+{% block cabecalho %}Painel{% endblock %}
+
+{% macro cartao(rotulo, valor, icone, cor) %}
+<div class="col-sm-6 col-xl-3">
+  <div class="card card-stat h-100">
+    <div class="card-body d-flex align-items-center gap-3">
+      <div class="stat-icon text-white" style="background: {{ cor }}"><i class="bi {{ icone }}"></i></div>
+      <div>
+        <div class="stat-valor">{% if valor is none %}<span class="text-secondary fs-6">em breve</span>{% else %}{{ valor }}{% endif %}</div>
+        <div class="text-secondary small">{{ rotulo }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endmacro %}
+
+{% block conteudo %}
+<div class="mb-4">
+  <p class="text-secondary mb-0">
+    Bem-vindo(a), <strong>{{ current_user.nome }}</strong>.
+    Organização: <strong>{{ organizacao_atual.nome }}</strong>.
+  </p>
+</div>
+
+<div class="row g-3 mb-4">
+  {{ cartao('Usuários', cartoes.usuarios, 'bi-people', '#0d6efd') }}
+  {{ cartao('Setores', cartoes.setores, 'bi-diagram-3', '#6610f2') }}
+  {{ cartao('Produtos', cartoes.produtos, 'bi-box', '#198754') }}
+  {{ cartao('Ativos', cartoes.ativos, 'bi-pc-display', '#fd7e14') }}
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-7">
+    <div class="card card-stat h-100">
+      <div class="card-body">
+        <h2 class="h6 text-secondary mb-3">Movimentações (exemplo)</h2>
+        <canvas id="grafico-mov" height="120"></canvas>
+        <p class="small text-secondary mt-3 mb-0">
+          Os dados reais de entradas/saídas aparecerão aqui quando o módulo de estoque
+          (Fase 4) estiver ativo.
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card card-stat h-100">
+      <div class="card-body">
+        <h2 class="h6 text-secondary mb-3">Próximas etapas</h2>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item d-flex gap-2"><i class="bi bi-check-circle-fill text-success"></i> Multi-tenant, login e RBAC</li>
+          <li class="list-group-item d-flex gap-2"><i class="bi bi-arrow-right-circle text-primary"></i> Setores, categorias e visibilidade</li>
+          <li class="list-group-item d-flex gap-2"><i class="bi bi-circle text-secondary"></i> Catálogo e campos customizáveis</li>
+          <li class="list-group-item d-flex gap-2"><i class="bi bi-circle text-secondary"></i> Estoque e transferências com confirmação</li>
+          <li class="list-group-item d-flex gap-2"><i class="bi bi-circle text-secondary"></i> Patrimônio, compras e documentos</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='vendor/chartjs/chart.umd.min.js') }}"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const ctx = document.getElementById('grafico-mov');
+    if (!ctx || typeof Chart === 'undefined') return;
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+        datasets: [
+          { label: 'Entradas', data: [0,0,0,0,0,0], borderColor: '#198754', tension: .3 },
+          { label: 'Saídas', data: [0,0,0,0,0,0], borderColor: '#dc3545', tension: .3 }
+        ]
+      },
+      options: { responsive: true, plugins: { legend: { position: 'bottom' } },
+                 scales: { y: { beginAtZero: true } } }
+    });
+  });
+</script>
+{% endblock %}

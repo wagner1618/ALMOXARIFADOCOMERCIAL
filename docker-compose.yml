@@ -1,0 +1,61 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-almoxarifado}
+      POSTGRES_USER: ${POSTGRES_USER:-almox}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-troque-esta-senha}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-almox} -d ${POSTGRES_DB:-almoxarifado}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--save", "60", "1", "--loglevel", "warning"]
+    volumes:
+      - redisdata:/data
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      FLASK_ENV: production
+      SECRET_KEY: ${SECRET_KEY:?defina SECRET_KEY no .env}
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-almox}:${POSTGRES_PASSWORD:-troque-esta-senha}@db:5432/${POSTGRES_DB:-almoxarifado}
+      REDIS_URL: redis://redis:6379/0
+      FORCE_HTTPS: ${FORCE_HTTPS:-false}
+      SEED_DEMO: ${SEED_DEMO:-false}
+      APP_NAME: ${APP_NAME:-Almoxarifado}
+    volumes:
+      - uploads:/app/app/static/uploads
+    expose:
+      - "8000"
+
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+      # - "443:443"   # habilite ao configurar TLS (Let's Encrypt)
+    volumes:
+      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - uploads:/usr/share/nginx/uploads:ro
+      # - ./docker/certs:/etc/nginx/certs:ro
+
+volumes:
+  pgdata:
+  redisdata:
+  uploads:

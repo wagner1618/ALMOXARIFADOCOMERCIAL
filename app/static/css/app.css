@@ -1,0 +1,168 @@
+/* Tema base do Almoxarifado. As cores vêm do white-label da organização
+   via variáveis injetadas no <body> (ver base.html). */
+:root {
+  --almox-primaria: #0d6efd;
+  --almox-secundaria: #6c757d;
+  --almox-sidebar-bg: #11192e;
+  --almox-sidebar-fg: #c7d0e0;
+  --almox-sidebar-active: rgba(255, 255, 255, 0.12);
+}
+
+body {
+  background-color: #f4f6fb;
+}
+
+a {
+  color: var(--almox-primaria);
+}
+
+.btn-primary,
+.bg-primary {
+  background-color: var(--almox-primaria) !important;
+  border-color: var(--almox-primaria) !important;
+}
+
+.btn-outline-primary {
+  color: var(--almox-primaria);
+  border-color: var(--almox-primaria);
+}
+.btn-outline-primary:hover {
+  background-color: var(--almox-primaria);
+  border-color: var(--almox-primaria);
+}
+
+.text-primary {
+  color: var(--almox-primaria) !important;
+}
+
+/* ----- Layout app (sidebar + conteúdo) ----- */
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 250px;
+  flex-shrink: 0;
+  background: var(--almox-sidebar-bg);
+  color: var(--almox-sidebar-fg);
+  transition: width 0.18s ease, margin 0.18s ease;
+}
+.sidebar .brand {
+  font-weight: 700;
+  color: #fff;
+}
+.sidebar .nav-link {
+  color: var(--almox-sidebar-fg);
+  border-radius: 0.5rem;
+  padding: 0.55rem 0.85rem;
+  margin: 0.1rem 0.6rem;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  white-space: nowrap;
+}
+.sidebar .nav-link:hover {
+  background: var(--almox-sidebar-active);
+  color: #fff;
+}
+.sidebar .nav-link.active {
+  background: var(--almox-primaria);
+  color: #fff;
+}
+.sidebar .nav-section {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.55;
+  padding: 0.75rem 1.2rem 0.25rem;
+}
+
+.app-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  background: #fff;
+  border-bottom: 1px solid #e6e9f2;
+}
+
+.content {
+  padding: 1.5rem;
+}
+
+/* Sidebar colapsada (desktop) */
+.app-shell.sidebar-collapsed .sidebar {
+  width: 0;
+  margin-left: -1px;
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    z-index: 1040;
+    height: 100vh;
+    margin-left: -260px;
+  }
+  .app-shell.sidebar-open .sidebar {
+    margin-left: 0;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.35);
+  }
+  .sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 1030;
+  }
+}
+
+/* ----- Cartões do dashboard ----- */
+.card-stat {
+  border: none;
+  border-radius: 0.9rem;
+  box-shadow: 0 2px 12px rgba(20, 30, 60, 0.06);
+}
+.card-stat .stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+}
+.card-stat .stat-valor {
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* ----- Tela de autenticação ----- */
+.auth-wrapper {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #0d1326 0%, #1c2c54 100%);
+  padding: 1.5rem;
+}
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  border: none;
+  border-radius: 1rem;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+}
+.auth-logo {
+  width: 56px;
+  height: 56px;
+  border-radius: 0.9rem;
+  display: grid;
+  place-items: center;
+  font-size: 1.6rem;
+  color: #fff;
+  background: var(--almox-primaria);
+}

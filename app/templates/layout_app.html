@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block corpo %}
+<div class="app-shell"
+     x-data="{ open: false, collapsed: (localStorage.getItem('sb-collapsed') === '1') }"
+     :class="{ 'sidebar-open': open, 'sidebar-collapsed': collapsed }">
+
+  {% include "partials/sidebar.html" %}
+
+  <div class="sidebar-backdrop d-md-none" x-show="open" x-cloak @click="open = false"></div>
+
+  <div class="app-main">
+    <header class="topbar d-flex align-items-center gap-2 px-3 py-2">
+      <button class="btn btn-light border d-none d-md-inline"
+              @click="collapsed = !collapsed; localStorage.setItem('sb-collapsed', collapsed ? '1':'0')"
+              title="Recolher menu">
+        <i class="bi bi-list"></i>
+      </button>
+      <button class="btn btn-light border d-md-none" @click="open = true" title="Menu">
+        <i class="bi bi-list"></i>
+      </button>
+
+      <h1 class="h5 mb-0 ms-1 text-truncate">{% block cabecalho %}{% endblock %}</h1>
+
+      <div class="ms-auto d-flex align-items-center gap-2">
+        <div class="dropdown">
+          <button class="btn btn-light border dropdown-toggle d-flex align-items-center gap-2"
+                  data-bs-toggle="dropdown" aria-expanded="false">
+            <span class="d-inline-flex align-items-center justify-content-center rounded-circle text-white"
+                  style="width:30px;height:30px;background:var(--almox-primaria)">
+              {{ current_user.nome[:1] | upper }}
+            </span>
+            <span class="d-none d-sm-inline">{{ current_user.nome.split(' ')[0] }}</span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end shadow">
+            <li class="dropdown-header">
+              {{ current_user.nome }}<br>
+              <small class="text-secondary">{{ current_user.cargo or '—' }}</small>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="{{ url_for('auth.trocar_senha') }}">
+              <i class="bi bi-key me-2"></i>Trocar senha</a></li>
+            <li><a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}">
+              <i class="bi bi-box-arrow-right me-2"></i>Sair</a></li>
+          </ul>
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+      {% include "partials/flash.html" %}
+      {% block conteudo %}{% endblock %}
+    </main>
+  </div>
+</div>
+
+<style>[x-cloak]{display:none!important}</style>
+{% endblock %}

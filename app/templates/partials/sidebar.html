@@ -1,0 +1,50 @@
+{# Item de navegação. Mostra apenas se o usuário tem a permissão (ou sem exigência). #}
+{% macro item(endpoint, rotulo, icone, perm=None) %}
+  {% if perm is none or current_user.tem_permissao(perm) %}
+    {% set ativo = (request.endpoint == endpoint) %}
+    <a class="nav-link {{ 'active' if ativo }}"
+       href="{{ url_for(endpoint) if endpoint_existe(endpoint) else '#' }}">
+      <i class="bi {{ icone }}"></i><span>{{ rotulo }}</span>
+    </a>
+  {% endif %}
+{% endmacro %}
+
+<aside class="sidebar d-flex flex-column">
+  <div class="d-flex align-items-center gap-2 px-3 py-3 border-bottom border-secondary border-opacity-25">
+    {% if marca.logo %}
+      <img src="{{ url_for('static', filename='uploads/' ~ marca.logo) }}" alt="" height="28">
+    {% else %}
+      <span class="badge rounded-2 px-2 py-2" style="background: var(--almox-primaria)">
+        <i class="bi bi-box-seam"></i>
+      </span>
+    {% endif %}
+    <span class="brand text-truncate">{{ marca.nome }}</span>
+  </div>
+
+  <nav class="nav flex-column py-2 flex-grow-1 overflow-auto">
+    {{ item('main.dashboard', 'Painel', 'bi-speedometer2') }}
+
+    <div class="nav-section">Estoque</div>
+    {{ item('main.dashboard', 'Produtos', 'bi-box', 'produto.ver') }}
+    {{ item('main.dashboard', 'Movimentações', 'bi-arrow-left-right', 'produto.ver') }}
+    {{ item('main.dashboard', 'Transferências', 'bi-truck', 'transferencia.enviar') }}
+
+    <div class="nav-section">Patrimônio</div>
+    {{ item('main.dashboard', 'Ativos', 'bi-pc-display', 'ativo.ver') }}
+    {{ item('main.dashboard', 'Empréstimos', 'bi-box-arrow-right', 'emprestimo.gerenciar') }}
+
+    <div class="nav-section">Compras</div>
+    {{ item('main.dashboard', 'Fornecedores', 'bi-shop', 'fornecedor.gerenciar') }}
+    {{ item('main.dashboard', 'Notas fiscais', 'bi-receipt', 'compra.nota_fiscal') }}
+
+    <div class="nav-section">Administração</div>
+    {{ item('main.dashboard', 'Setores', 'bi-diagram-3', 'setor.gerenciar') }}
+    {{ item('main.dashboard', 'Usuários', 'bi-people', 'usuario.gerenciar') }}
+    {{ item('main.dashboard', 'Papéis', 'bi-shield-lock', 'papel.gerenciar') }}
+    {{ item('main.dashboard', 'Relatórios', 'bi-bar-chart', 'relatorio.ver') }}
+  </nav>
+
+  <div class="px-3 py-2 small text-secondary border-top border-secondary border-opacity-25">
+    {{ app_name }} · v0.1
+  </div>
+</aside>
