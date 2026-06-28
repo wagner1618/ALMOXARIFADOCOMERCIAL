@@ -7,12 +7,14 @@ compras (privadas e públicas — Lei nº 14.133/2021), documentos em PDF e audi
 Construída com tecnologias **100% gratuitas / open source**. Interface, mensagens e
 documentação em **português do Brasil**.
 
-> **Status atual:** Fases 0 a 3 concluídas — multi-tenant, autenticação (Argon2 + 2FA
+> **Status atual:** Fases 0 a 4 concluídas — multi-tenant, autenticação (Argon2 + 2FA
 > opcional), RBAC com escopo de setor, **hierarquia de setores e visibilidade**, cadastros
 > base (categorias/localizações), **catálogo de produtos (consumível/durável) com campos
-> customizáveis (JSONB) e import/export Excel**, auditoria, dashboard e UI base. As próximas
-> fases (estoque, transferências com confirmação, patrimônio, compras, documentos,
-> relatórios) seguem o roadmap em [`PROMPT_SISTEMA_COMERCIAL.md`](PROMPT_SISTEMA_COMERCIAL.md).
+> customizáveis (JSONB) e import/export Excel**, **estoque de consumíveis** (saldos por setor,
+> entrada/saída/lote transacional, movimentações append-only, alertas de estoque mínimo),
+> auditoria, dashboard e UI base. As próximas fases (transferências com confirmação,
+> patrimônio, compras, documentos, relatórios) seguem o roadmap em
+> [`PROMPT_SISTEMA_COMERCIAL.md`](PROMPT_SISTEMA_COMERCIAL.md).
 
 ---
 
@@ -29,6 +31,10 @@ documentação em **português do Brasil**.
   automático, foto, busca/filtros/paginação, **import/export Excel**.
 - 🧩 **Campos customizáveis (JSONB)** por entidade e categoria — texto, número, data,
   sim/não, seleção única/múltipla e anexo — com validação no servidor e render dinâmico.
+- 📊 **Estoque de consumíveis**: saldo por setor (com quantidade em trânsito),
+  **entrada/saída/lote** em transações atômicas (saldo nunca negativo), **custo médio**
+  ponderado, ajuste de inventário com justificativa, movimentações **append-only** e
+  **alertas** de estoque mínimo/zerado no dashboard.
 - 🧾 **Auditoria append-only** de ações sensíveis.
 - 🎨 **UI white-label:** Bootstrap 5.3 + HTMX + Alpine.js, tema (logo/cores) por
   organização, sidebar colável, dashboard com gráficos (Chart.js). Tudo no padrão BR.

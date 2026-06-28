@@ -1,0 +1,36 @@
+{% extends "layout_app.html" %}
+{% from "partials/forms.html" import campo %}
+{% block titulo %}{{ titulo }}{% endblock %}
+{% block cabecalho %}{{ titulo }}{% endblock %}
+
+{% block conteudo %}
+<div class="row"><div class="col-lg-6">
+  <div class="card card-stat"><div class="card-body p-4">
+    {% if tipo == 'ENTRADA' %}
+      <p class="text-secondary">Adiciona quantidade ao saldo do setor. Informe o valor unitário
+      para atualizar o custo médio do produto.</p>
+    {% else %}
+      <p class="text-secondary">Baixa do saldo do setor (distribuição/consumo). Bloqueia se a
+      quantidade exceder o disponível.</p>
+    {% endif %}
+    <form method="post" novalidate>
+      {{ form.hidden_tag() }}
+      {{ campo(form.produto_id) }}
+      {{ campo(form.setor_id) }}
+      <div class="row">
+        <div class="col-md-6">{{ campo(form.quantidade) }}</div>
+        {% if form.valor_unitario is defined %}
+          <div class="col-md-6">{{ campo(form.valor_unitario) }}</div>
+        {% elif form.destinatario is defined %}
+          <div class="col-md-6">{{ campo(form.destinatario) }}</div>
+        {% endif %}
+      </div>
+      {{ campo(form.observacoes) }}
+      <div class="d-flex gap-2 mt-2">
+        {{ form.submit(class="btn btn-primary") }}
+        <a href="{{ url_for('estoque.posicao') }}" class="btn btn-light">Cancelar</a>
+      </div>
+    </form>
+  </div></div>
+</div></div>
+{% endblock %}

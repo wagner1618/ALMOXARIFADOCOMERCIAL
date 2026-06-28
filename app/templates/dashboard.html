@@ -32,53 +32,57 @@
 </div>
 
 <div class="row g-3">
-  <div class="col-lg-7">
+  <div class="col-lg-6">
     <div class="card card-stat h-100">
       <div class="card-body">
-        <h2 class="h6 text-secondary mb-3">Movimentações (exemplo)</h2>
-        <canvas id="grafico-mov" height="120"></canvas>
-        <p class="small text-secondary mt-3 mb-0">
-          Os dados reais de entradas/saídas aparecerão aqui quando o módulo de estoque
-          (Fase 4) estiver ativo.
-        </p>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h2 class="h6 text-secondary mb-0">
+            <i class="bi bi-exclamation-triangle text-warning me-1"></i>Alertas de estoque
+          </h2>
+          {% if total_alertas %}<span class="badge text-bg-danger">{{ total_alertas }}</span>{% endif %}
+        </div>
+        {% if not itens_alerta %}
+          <p class="text-secondary mb-0"><i class="bi bi-check-circle text-success me-1"></i>
+          Nenhum item abaixo do mínimo.</p>
+        {% else %}
+          <ul class="list-group list-group-flush">
+            {% for a in itens_alerta %}
+            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+              <span>{{ a.produto.nome }} <small class="text-secondary">· {{ a.setor.nome }}</small></span>
+              {% if a.zerado %}<span class="badge text-bg-danger">Zerado</span>
+              {% else %}<span class="badge text-bg-warning">{{ a.disponivel | numero(0) }}</span>{% endif %}
+            </li>
+            {% endfor %}
+          </ul>
+          <a href="{{ url_for('estoque.lista_alertas') }}" class="small d-inline-block mt-2">Ver todos →</a>
+        {% endif %}
       </div>
     </div>
   </div>
-  <div class="col-lg-5">
+  <div class="col-lg-6">
     <div class="card card-stat h-100">
       <div class="card-body">
-        <h2 class="h6 text-secondary mb-3">Próximas etapas</h2>
-        <ul class="list-group list-group-flush">
-          <li class="list-group-item d-flex gap-2"><i class="bi bi-check-circle-fill text-success"></i> Multi-tenant, login e RBAC</li>
-          <li class="list-group-item d-flex gap-2"><i class="bi bi-arrow-right-circle text-primary"></i> Setores, categorias e visibilidade</li>
-          <li class="list-group-item d-flex gap-2"><i class="bi bi-circle text-secondary"></i> Catálogo e campos customizáveis</li>
-          <li class="list-group-item d-flex gap-2"><i class="bi bi-circle text-secondary"></i> Estoque e transferências com confirmação</li>
-          <li class="list-group-item d-flex gap-2"><i class="bi bi-circle text-secondary"></i> Patrimônio, compras e documentos</li>
-        </ul>
+        <h2 class="h6 text-secondary mb-3">
+          <i class="bi bi-clock-history me-1"></i>Últimas movimentações
+        </h2>
+        {% if not ultimas_mov %}
+          <p class="text-secondary mb-0">Nenhuma movimentação registrada.</p>
+        {% else %}
+          <ul class="list-group list-group-flush">
+            {% for m in ultimas_mov %}
+            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+              <span class="text-truncate">
+                <span class="badge text-bg-light me-1">{{ m.rotulo_tipo }}</span>
+                {{ m.produto.nome if m.produto else '—' }}
+              </span>
+              <small class="text-secondary text-nowrap">{{ m.quantidade | numero(0) }} · {{ m.criado_em | data }}</small>
+            </li>
+            {% endfor %}
+          </ul>
+          <a href="{{ url_for('estoque.movimentacoes') }}" class="small d-inline-block mt-2">Ver histórico →</a>
+        {% endif %}
       </div>
     </div>
   </div>
 </div>
-{% endblock %}
-
-{% block scripts %}
-<script src="{{ url_for('static', filename='vendor/chartjs/chart.umd.min.js') }}"></script>
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const ctx = document.getElementById('grafico-mov');
-    if (!ctx || typeof Chart === 'undefined') return;
-    new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
-        datasets: [
-          { label: 'Entradas', data: [0,0,0,0,0,0], borderColor: '#198754', tension: .3 },
-          { label: 'Saídas', data: [0,0,0,0,0,0], borderColor: '#dc3545', tension: .3 }
-        ]
-      },
-      options: { responsive: true, plugins: { legend: { position: 'bottom' } },
-                 scales: { y: { beginAtZero: true } } }
-    });
-  });
-</script>
 {% endblock %}

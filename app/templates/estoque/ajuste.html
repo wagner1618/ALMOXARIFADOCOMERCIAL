@@ -1,0 +1,25 @@
+{% extends "layout_app.html" %}
+{% from "partials/forms.html" import campo %}
+{% block titulo %}Ajuste de inventário{% endblock %}
+{% block cabecalho %}Ajuste de inventário{% endblock %}
+
+{% block conteudo %}
+<div class="row"><div class="col-lg-6">
+  <div class="card card-stat"><div class="card-body p-4">
+    <h2 class="h6">{{ produto.nome }} <small class="text-secondary">({{ produto.unidade }})</small></h2>
+    <p class="text-secondary mb-3">
+      Saldo atual: <strong>{{ (saldo.quantidade if saldo else 0) | numero(3) }}</strong>.
+      O ajuste registra a diferença como movimentação de inventário (append-only) com justificativa.
+    </p>
+    <form method="post" novalidate>
+      {{ form.hidden_tag() }}
+      {{ campo(form.nova_quantidade) }}
+      {{ campo(form.justificativa) }}
+      <div class="d-flex gap-2">
+        {{ form.submit(class="btn btn-primary") }}
+        <a href="{{ url_for('estoque.posicao') }}" class="btn btn-light">Cancelar</a>
+      </div>
+    </form>
+  </div></div>
+</div></div>
+{% endblock %}

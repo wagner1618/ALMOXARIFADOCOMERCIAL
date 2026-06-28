@@ -55,7 +55,7 @@ def test_definicoes_aplicaveis(org_campos):
 
 def test_obrigatorio_falta(org_campos):
     defs = cc.definicoes_aplicaveis(org_campos.id, ENTIDADE_PRODUTO)
-    valores, erros = cc.validar_e_coletar(defs, _form({}))
+    _valores, erros = cc.validar_e_coletar(defs, _form({}))
     assert "processador" in erros
 
 

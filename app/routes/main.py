@@ -7,9 +7,12 @@ from flask_login import current_user, login_required
 from sqlalchemy import func, select
 
 from app.extensions import db
+from app.models.movimentacao import Movimentacao
 from app.models.produto import Produto
 from app.models.setor import Setor
 from app.models.usuario import Usuario
+from app.security import setores_visiveis_ids
+from app.services import alertas
 
 bp = Blueprint("main", __name__)
 
@@ -50,4 +53,19 @@ def dashboard():
         # Placeholder da próxima fase (ativos/patrimônio).
         "ativos": None,
     }
-    return render_template("dashboard.html", cartoes=cartoes)
+
+    visiveis = setores_visiveis_ids(current_user)
+    itens_alerta = alertas.itens_em_alerta(org_id, setor_ids=visiveis)
+    ultimas_mov = db.session.scalars(
+        select(Movimentacao)
+        .where(Movimentacao.organizacao_id == org_id)
+        .order_by(Movimentacao.criado_em.desc(), Movimentacao.id.desc())
+        .limit(8)
+    ).all()
+    return render_template(
+        "dashboard.html",
+        cartoes=cartoes,
+        itens_alerta=itens_alerta[:8],
+        total_alertas=len(itens_alerta),
+        ultimas_mov=ultimas_mov,
+    )

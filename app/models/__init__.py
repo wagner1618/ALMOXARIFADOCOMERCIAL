@@ -5,7 +5,9 @@ from __future__ import annotations
 from app.models.auditoria import Auditoria
 from app.models.categoria import Categoria
 from app.models.definicao_campo import DefinicaoCampo
+from app.models.estoque import SaldoEstoque
 from app.models.localizacao import Localizacao
+from app.models.movimentacao import LoteMovimentacao, Movimentacao
 from app.models.organizacao import Organizacao
 from app.models.produto import Produto
 from app.models.rbac import Papel, Permissao, UsuarioPapel, papel_permissao
@@ -18,11 +20,14 @@ __all__ = [
     "Categoria",
     "DefinicaoCampo",
     "Localizacao",
+    "LoteMovimentacao",
+    "Movimentacao",
     "Organizacao",
     "Papel",
     "Permissao",
     "Produto",
     "RegraVisibilidade",
+    "SaldoEstoque",
     "Setor",
     "Usuario",
     "UsuarioPapel",
