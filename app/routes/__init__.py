@@ -6,6 +6,7 @@ from flask import Flask
 
 
 def register_blueprints(app: Flask) -> None:
+    from app.routes.ativos import bp as ativos_bp
     from app.routes.auth import bp as auth_bp
     from app.routes.categorias import bp as categorias_bp
     from app.routes.definicoes import bp as definicoes_bp
@@ -25,3 +26,4 @@ def register_blueprints(app: Flask) -> None:
     app.register_blueprint(definicoes_bp)
     app.register_blueprint(estoque_bp)
     app.register_blueprint(transferencias_bp)
+    app.register_blueprint(ativos_bp)

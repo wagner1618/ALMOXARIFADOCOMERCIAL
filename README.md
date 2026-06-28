@@ -7,13 +7,14 @@ compras (privadas e públicas — Lei nº 14.133/2021), documentos em PDF e audi
 Construída com tecnologias **100% gratuitas / open source**. Interface, mensagens e
 documentação em **português do Brasil**.
 
-> **Status atual:** Fases 0 a 4b concluídas — multi-tenant, autenticação (Argon2 + 2FA
+> **Status atual:** Fases 0 a 5 concluídas — multi-tenant, autenticação (Argon2 + 2FA
 > opcional), RBAC com escopo de setor, **hierarquia de setores e visibilidade**, cadastros
 > base (categorias/localizações), **catálogo de produtos (consumível/durável) com campos
 > customizáveis (JSONB) e import/export Excel**, **estoque de consumíveis** (saldos por setor,
 > entrada/saída/lote transacional, movimentações append-only, alertas de estoque mínimo),
 > **transferências com confirmação em duas etapas** (em trânsito, conferência, divergência e
-> correção), auditoria, dashboard e UI base. As próximas fases (patrimônio, compras,
+> correção), **ativos/patrimônio** (ciclo de vida completo, depreciação, recertificação,
+> termo de responsabilidade), auditoria, dashboard e UI base. As próximas fases (compras,
 > documentos, relatórios) seguem o roadmap em
 > [`PROMPT_SISTEMA_COMERCIAL.md`](PROMPT_SISTEMA_COMERCIAL.md).
 
@@ -41,6 +42,10 @@ documentação em **português do Brasil**.
   e confirma** item a item — ao confirmar, o material entra no estoque do destino;
   **divergências** (falta/sobra) são registradas e o **setor de origem corrige** (estorno),
   com cancelamento enquanto em trânsito. Máquina de estados auditada e transacional.
+- 🖥️ **Ativos / patrimônio**: cada exemplar é único (tombamento/série exclusivos), com
+  **ciclo de vida** completo (em estoque → em uso → manutenção → baixa), destinação com
+  **termo de responsabilidade**, transferência/retorno/redestinação, **recertificação anual**
+  (alerta de revisão vencida), **depreciação linear** e bloqueio de inservível para uso.
 - 🧾 **Auditoria append-only** de ações sensíveis.
 - 🎨 **UI white-label:** Bootstrap 5.3 + HTMX + Alpine.js, tema (logo/cores) por
   organização, sidebar colável, dashboard com gráficos (Chart.js). Tudo no padrão BR.

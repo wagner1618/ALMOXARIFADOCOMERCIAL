@@ -1,0 +1,98 @@
+{% extends "layout_app.html" %}
+{% from "partials/forms.html" import page_actions %}
+{% block titulo %}Ativos{% endblock %}
+{% block cabecalho %}Ativos / Patrimônio{% endblock %}
+
+{% set rotulo_status = {'EM_ESTOQUE':'Em estoque','EM_USO':'Em uso','EMPRESTADO':'Emprestado','EM_MANUTENCAO':'Em manutenção','EM_TRANSITO':'Em trânsito','BAIXADO':'Baixado'} %}
+{% set rotulo_estado = {'BOM':'Bom','REGULAR':'Regular','DEFASADO':'Defasado','INSERVIVEL':'Inservível'} %}
+
+{% block conteudo %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <p class="text-secondary mb-0">Bens duráveis rastreados individualmente.</p>
+  <div class="d-flex gap-2">
+    {% if current_user.tem_permissao('config.campos') %}
+      <a href="{{ url_for('definicoes.listar', entidade='ATIVO') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-ui-checks me-1"></i>Campos</a>
+    {% endif %}
+    {% if current_user.tem_permissao('ativo.gerenciar') %}
+      {{ page_actions('Novo ativo', url_for('ativos.novo')) }}
+    {% endif %}
+  </div>
+</div>
+
+<form method="get" class="card card-stat mb-3"><div class="card-body py-3">
+  <div class="row g-2 align-items-end">
+    <div class="col-md-4">
+      <label class="form-label small mb-1">Buscar</label>
+      <input type="search" name="q" value="{{ busca }}" class="form-control" placeholder="Nome, tombamento ou série">
+    </div>
+    <div class="col-md-3">
+      <label class="form-label small mb-1">Status</label>
+      <select name="status" class="form-select">
+        <option value="">Todos</option>
+        {% for s in statuses %}<option value="{{ s }}" {{ 'selected' if status == s }}>{{ rotulo_status[s] }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label small mb-1">Estado</label>
+      <select name="estado" class="form-select">
+        <option value="">Todos</option>
+        {% for e in estados %}<option value="{{ e }}" {{ 'selected' if estado == e }}>{{ rotulo_estado[e] }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="col-md-2 d-grid">
+      <button class="btn btn-primary"><i class="bi bi-search me-1"></i>Filtrar</button>
+    </div>
+  </div>
+  <div class="form-check mt-2">
+    <input class="form-check-input" type="checkbox" name="baixados" value="1" id="baixados"
+           {{ 'checked' if incluir_baixados }} onchange="this.form.submit()">
+    <label class="form-check-label small" for="baixados">Incluir baixados</label>
+  </div>
+</div></form>
+
+{% if not paginacao.items %}
+  <div class="card card-stat"><div class="card-body text-center text-secondary py-5">
+    <i class="bi bi-pc-display fs-1 d-block mb-2"></i>Nenhum ativo encontrado.
+  </div></div>
+{% else %}
+<div class="card card-stat"><div class="table-responsive">
+  <table class="table table-hover align-middle mb-0">
+    <thead class="table-light"><tr>
+      <th>Tombamento</th><th>Ativo</th><th>Setor atual</th>
+      <th class="text-center">Estado</th><th class="text-center">Status</th>
+      <th class="text-end">Valor contábil</th><th></th>
+    </tr></thead>
+    <tbody>
+      {% for a in paginacao.items %}
+      <tr class="{{ 'opacity-50' if a.status_ciclo == 'BAIXADO' }}">
+        <td><code>{{ a.tombamento or '—' }}</code></td>
+        <td>{{ a.nome }}{% if a.revisao_vencida %}<i class="bi bi-exclamation-triangle text-warning ms-1" title="Revisão vencida"></i>{% endif %}</td>
+        <td class="text-secondary">{{ a.setor_atual.nome if a.setor_atual else '—' }}</td>
+        <td class="text-center">
+          {% set ec = {'BOM':'success','REGULAR':'info','DEFASADO':'warning','INSERVIVEL':'danger'} %}
+          <span class="badge text-bg-{{ ec.get(a.estado_conservacao,'secondary') }}">{{ a.rotulo_estado }}</span>
+        </td>
+        <td class="text-center"><span class="badge text-bg-{{ a.cor_status }}">{{ a.rotulo_status }}</span></td>
+        <td class="text-end">{{ a.valor_contabil | moeda if a.valor_contabil is not none else '—' }}</td>
+        <td class="text-end">
+          <a href="{{ url_for('ativos.detalhe', ativo_id=a.id) }}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i></a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+
+{% if paginacao.pages > 1 %}
+<nav class="mt-3"><ul class="pagination justify-content-center">
+  {% set args = {'q': busca, 'status': status or '', 'estado': estado or '', 'baixados': '1' if incluir_baixados else ''} %}
+  <li class="page-item {{ 'disabled' if not paginacao.has_prev }}">
+    <a class="page-link" href="{{ url_for('ativos.listar', page=paginacao.prev_num, **args) }}">Anterior</a></li>
+  <li class="page-item disabled"><span class="page-link">{{ paginacao.page }} / {{ paginacao.pages }}</span></li>
+  <li class="page-item {{ 'disabled' if not paginacao.has_next }}">
+    <a class="page-link" href="{{ url_for('ativos.listar', page=paginacao.next_num, **args) }}">Próxima</a></li>
+</ul></nav>
+{% endif %}
+{% endif %}
+{% endblock %}

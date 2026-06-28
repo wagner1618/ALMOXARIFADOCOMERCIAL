@@ -216,6 +216,35 @@ def seed_cmd(demo: bool) -> None:
         estoque_minimo=5,
         commit=False,
     )
+    db.session.flush()
+
+    # Ativos (patrimônio) de exemplo.
+    from app.services import ativo_service
+
+    ativo_service.criar_ativo(
+        org.id,
+        dados={
+            "nome": "Notebook Dell Latitude 3540",
+            "tombamento": "TOMB-000001",
+            "numero_serie": "DL3540-001",
+            "marca": "Dell",
+            "modelo": "Latitude 3540",
+            "estado_conservacao": "BOM",
+            "setor_atual_id": central.id,
+        },
+        commit=False,
+    )
+    ativo_service.criar_ativo(
+        org.id,
+        dados={
+            "nome": "Projetor Epson",
+            "tombamento": "TOMB-000002",
+            "marca": "Epson",
+            "estado_conservacao": "REGULAR",
+            "setor_atual_id": secundario.id,
+        },
+        commit=False,
+    )
     db.session.commit()
 
     click.secho("✓ Dados de demonstração criados.", fg="green")

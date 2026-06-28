@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from app.models.ativo import Ativo
 from app.models.auditoria import Auditoria
 from app.models.categoria import Categoria
 from app.models.definicao_campo import DefinicaoCampo
@@ -17,6 +18,7 @@ from app.models.usuario import Usuario
 from app.models.visibilidade import RegraVisibilidade
 
 __all__ = [
+    "Ativo",
     "Auditoria",
     "Categoria",
     "DefinicaoCampo",

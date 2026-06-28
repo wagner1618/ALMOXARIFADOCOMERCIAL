@@ -1,0 +1,137 @@
+{% extends "layout_app.html" %}
+{% from "partials/forms.html" import campo %}
+{% block titulo %}{{ a.nome }}{% endblock %}
+{% block cabecalho %}Ativo: {{ a.nome }}{% endblock %}
+
+{% macro info(rotulo, valor) %}
+  <div class="col-sm-6 col-lg-4 mb-2">
+    <div class="small text-secondary">{{ rotulo }}</div>
+    <div>{{ valor if valor not in (none, '') else '—' }}</div>
+  </div>
+{% endmacro %}
+
+{% block conteudo %}
+<div class="row g-3">
+  <div class="col-lg-8">
+    <div class="card card-stat mb-3"><div class="card-body p-4">
+      <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+          <span class="badge text-bg-{{ a.cor_status }} me-1">{{ a.rotulo_status }}</span>
+          {% set ec = {'BOM':'success','REGULAR':'info','DEFASADO':'warning','INSERVIVEL':'danger'} %}
+          <span class="badge text-bg-{{ ec.get(a.estado_conservacao,'secondary') }}">{{ a.rotulo_estado }}</span>
+          {% if a.revisao_vencida %}<span class="badge text-bg-warning"><i class="bi bi-exclamation-triangle"></i> Revisão vencida</span>{% endif %}
+        </div>
+        <div class="d-flex gap-2">
+          {% if current_user.tem_permissao('ativo.gerenciar') and a.status_ciclo != 'BAIXADO' %}
+            <a href="{{ url_for('ativos.editar', ativo_id=a.id) }}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
+          {% endif %}
+          <a href="{{ url_for('ativos.listar') }}" class="btn btn-sm btn-light">Voltar</a>
+        </div>
+      </div>
+
+      <div class="row">
+        {{ info('Tombamento', a.tombamento) }}
+        {{ info('Número de série', a.numero_serie) }}
+        {{ info('Marca / Modelo', (a.marca or '') ~ ' ' ~ (a.modelo or '')) }}
+        {{ info('Setor atual', a.setor_atual.nome if a.setor_atual else None) }}
+        {{ info('Responsável', a.responsavel.nome if a.responsavel else None) }}
+        {{ info('Fornecedor', a.fornecedor) }}
+        {{ info('Aquisição', a.data_aquisicao | data) }}
+        {{ info('Valor de aquisição', a.valor_aquisicao | moeda if a.valor_aquisicao else None) }}
+        {{ info('Valor contábil', a.valor_contabil | moeda if a.valor_contabil is not none else None) }}
+        {{ info('Garantia até', a.garantia_ate | data) }}
+        {{ info('Última revisão', a.ultima_revisao_em | data) }}
+        {{ info('Próxima revisão', a.proxima_revisao_em | data) }}
+      </div>
+      {% if a.observacoes %}<p class="small mt-2"><strong>Obs.:</strong> {{ a.observacoes }}</p>{% endif %}
+    </div></div>
+  </div>
+
+  <!-- Painel de ações -->
+  <div class="col-lg-4">
+    <div class="card card-stat"><div class="card-body">
+      <h2 class="h6 text-secondary mb-3">Ações</h2>
+
+      {% if a.status_ciclo == 'BAIXADO' %}
+        <p class="text-secondary small">Ativo baixado. Nenhuma ação disponível.</p>
+      {% else %}
+
+      {% if a.status_ciclo == 'EM_USO' %}
+        <a href="{{ url_for('ativos.termo', ativo_id=a.id) }}" target="_blank" class="btn btn-outline-primary w-100 mb-2">
+          <i class="bi bi-file-earmark-text me-1"></i>Termo de responsabilidade</a>
+        <form method="post" action="{{ url_for('ativos.retornar', ativo_id=a.id) }}" class="mb-2">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="btn btn-outline-secondary w-100"><i class="bi bi-box-arrow-in-left me-1"></i>Retornar ao estoque</button>
+        </form>
+      {% endif %}
+
+      {% if current_user.tem_permissao('ativo.gerenciar') %}
+        {% if a.status_ciclo in ('EM_ESTOQUE',) and not a.is_inservivel %}
+          <button class="btn btn-primary w-100 mb-2" data-bs-toggle="collapse" data-bs-target="#cDestinar">
+            <i class="bi bi-person-check me-1"></i>Destinar a uso</button>
+          <div class="collapse mb-2" id="cDestinar">
+            <form method="post" action="{{ url_for('ativos.destinar', ativo_id=a.id) }}" class="border rounded p-2">
+              {{ form_destinar.hidden_tag() }}
+              {{ campo(form_destinar.setor_id) }}
+              {{ campo(form_destinar.responsavel_id) }}
+              {{ form_destinar.submit(class="btn btn-primary btn-sm w-100") }}
+            </form>
+          </div>
+        {% endif %}
+
+        {% if a.status_ciclo in ('EM_ESTOQUE', 'EM_USO') and not a.is_inservivel %}
+          <button class="btn btn-outline-primary w-100 mb-2" data-bs-toggle="collapse" data-bs-target="#cTransf">
+            <i class="bi bi-truck me-1"></i>Transferir de setor</button>
+          <div class="collapse mb-2" id="cTransf">
+            <form method="post" action="{{ url_for('ativos.transferir', ativo_id=a.id) }}" class="border rounded p-2">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <select name="setor_id" class="form-select form-select-sm mb-2">
+                {% for sid, slabel in setores %}<option value="{{ sid }}">{{ slabel }}</option>{% endfor %}
+              </select>
+              <button class="btn btn-outline-primary btn-sm w-100">Transferir</button>
+            </form>
+          </div>
+        {% endif %}
+
+        {% if a.status_ciclo == 'EM_ESTOQUE' %}
+          <form method="post" action="{{ url_for('ativos.manutencao', ativo_id=a.id, acao='enviar') }}" class="mb-2">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-outline-warning w-100"><i class="bi bi-tools me-1"></i>Enviar p/ manutenção</button>
+          </form>
+        {% elif a.status_ciclo == 'EM_MANUTENCAO' %}
+          <form method="post" action="{{ url_for('ativos.manutencao', ativo_id=a.id, acao='concluir') }}" class="mb-2">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-outline-success w-100"><i class="bi bi-check2-circle me-1"></i>Concluir manutenção</button>
+          </form>
+        {% endif %}
+
+        <button class="btn btn-outline-secondary w-100 mb-2" data-bs-toggle="collapse" data-bs-target="#cRecert">
+          <i class="bi bi-clipboard-check me-1"></i>Recertificar</button>
+        <div class="collapse mb-2" id="cRecert">
+          <form method="post" action="{{ url_for('ativos.recertificar', ativo_id=a.id) }}" class="border rounded p-2">
+            {{ form_recert.hidden_tag() }}
+            {{ campo(form_recert.estado_conservacao) }}
+            {{ campo(form_recert.meses_proxima) }}
+            {{ form_recert.submit(class="btn btn-outline-secondary btn-sm w-100") }}
+          </form>
+        </div>
+      {% endif %}
+
+      {% if current_user.tem_permissao('ativo.baixar') and a.status_ciclo in ('EM_ESTOQUE', 'EM_MANUTENCAO') %}
+        <button class="btn btn-outline-danger w-100" data-bs-toggle="collapse" data-bs-target="#cBaixa">
+          <i class="bi bi-x-octagon me-1"></i>Baixar</button>
+        <div class="collapse mt-2" id="cBaixa">
+          <form method="post" action="{{ url_for('ativos.baixar', ativo_id=a.id) }}" class="border rounded p-2">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <textarea name="justificativa" class="form-control form-control-sm mb-2" rows="2"
+                      placeholder="Justificativa da baixa (obrigatória)" required></textarea>
+            <button class="btn btn-danger btn-sm w-100">Confirmar baixa</button>
+          </form>
+        </div>
+      {% endif %}
+
+      {% endif %}
+    </div></div>
+  </div>
+</div>
+{% endblock %}

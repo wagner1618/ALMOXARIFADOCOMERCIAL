@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+from datetime import date
+
 from flask import Blueprint, jsonify, redirect, render_template, url_for
 from flask_login import current_user, login_required
 from sqlalchemy import func, select
 
 from app.extensions import db
+from app.models.ativo import BAIXADO, Ativo
 from app.models.movimentacao import Movimentacao
 from app.models.produto import Produto
 from app.models.setor import Setor
@@ -51,9 +54,21 @@ def dashboard():
                 Produto.organizacao_id == org_id, Produto.ativo.is_(True)
             )
         ),
-        # Placeholder da próxima fase (ativos/patrimônio).
-        "ativos": None,
+        "ativos": db.session.scalar(
+            select(func.count(Ativo.id)).where(
+                Ativo.organizacao_id == org_id, Ativo.status_ciclo != BAIXADO
+            )
+        ),
     }
+
+    revisoes_vencidas = db.session.scalars(
+        select(Ativo).where(
+            Ativo.organizacao_id == org_id,
+            Ativo.status_ciclo != BAIXADO,
+            Ativo.proxima_revisao_em.is_not(None),
+            Ativo.proxima_revisao_em < date.today(),
+        )
+    ).all()
 
     visiveis = setores_visiveis_ids(current_user)
     operacionais = setores_operacionais_ids(current_user)
@@ -88,4 +103,5 @@ def dashboard():
         ultimas_mov=ultimas_mov,
         pendentes_receber=pendentes_receber,
         divergencias=divergencias,
+        revisoes_vencidas=revisoes_vencidas,
     )

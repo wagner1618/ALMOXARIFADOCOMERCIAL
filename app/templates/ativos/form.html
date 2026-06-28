@@ -1,0 +1,61 @@
+{% extends "layout_app.html" %}
+{% from "partials/forms.html" import campo %}
+{% from "partials/campos_customizados.html" import render_campos %}
+{% block titulo %}{{ titulo }}{% endblock %}
+{% block cabecalho %}{{ titulo }}{% endblock %}
+
+{% block conteudo %}
+<div class="row"><div class="col-lg-9">
+  <div class="card card-stat"><div class="card-body p-4">
+    <form method="post" enctype="multipart/form-data" novalidate>
+      {{ form.hidden_tag() }}
+      <div class="row">
+        <div class="col-md-8">{{ campo(form.nome) }}</div>
+        <div class="col-md-4">{{ campo(form.produto_id, "Modelo de catálogo (opcional).") }}</div>
+      </div>
+      <div class="row">
+        <div class="col-md-6">{{ campo(form.tombamento) }}</div>
+        <div class="col-md-6">{{ campo(form.numero_serie) }}</div>
+      </div>
+      <div class="row">
+        <div class="col-md-4">{{ campo(form.marca) }}</div>
+        <div class="col-md-4">{{ campo(form.modelo) }}</div>
+        <div class="col-md-4">{{ campo(form.fornecedor) }}</div>
+      </div>
+
+      <hr class="my-3"><h2 class="h6 text-secondary">Aquisição e depreciação</h2>
+      <div class="row">
+        <div class="col-md-4">{{ campo(form.data_aquisicao) }}</div>
+        <div class="col-md-4">{{ campo(form.valor_aquisicao) }}</div>
+        <div class="col-md-4">{{ campo(form.garantia_ate) }}</div>
+      </div>
+      <div class="row">
+        <div class="col-md-6">{{ campo(form.vida_util_meses, "Para cálculo de depreciação linear.") }}</div>
+        <div class="col-md-6">{{ campo(form.valor_residual) }}</div>
+      </div>
+
+      <hr class="my-3"><h2 class="h6 text-secondary">Situação</h2>
+      <div class="row">
+        <div class="col-md-6">{{ campo(form.estado_conservacao) }}</div>
+        <div class="col-md-6">{{ campo(form.setor_atual_id) }}</div>
+      </div>
+      {{ campo(form.observacoes) }}
+      <div class="row align-items-center">
+        <div class="col-md-8">{{ campo(form.foto) }}</div>
+        <div class="col-md-4">
+          {% if ativo and ativo.foto %}
+            <img src="{{ url_for('static', filename='uploads/' ~ ativo.foto) }}" class="img-thumbnail" style="max-height:80px">
+          {% endif %}
+        </div>
+      </div>
+
+      {{ render_campos(definicoes, valores_cc, erros_cc) }}
+
+      <div class="d-flex gap-2 mt-3">
+        {{ form.submit(class="btn btn-primary") }}
+        <a href="{{ url_for('ativos.listar') }}" class="btn btn-light">Cancelar</a>
+      </div>
+    </form>
+  </div></div>
+</div></div>
+{% endblock %}

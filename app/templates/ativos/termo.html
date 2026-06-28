@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Termo de Responsabilidade · {{ a.tombamento or a.nome }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}">
+  <style>
+    @media print { .no-print { display: none; } }
+    body { padding: 2rem; max-width: 800px; margin: auto; }
+  </style>
+</head>
+<body>
+  <div class="no-print text-end mb-3">
+    <button class="btn btn-primary" onclick="window.print()"><i class="bi"></i> Imprimir</button>
+    <a href="{{ url_for('ativos.detalhe', ativo_id=a.id) }}" class="btn btn-light">Voltar</a>
+  </div>
+
+  <div class="text-center mb-4">
+    <h3>{{ marca.nome }}</h3>
+    <h5 class="text-muted">Termo de Responsabilidade de Bem Patrimonial</h5>
+  </div>
+
+  <p>Declaro ter recebido, sob minha responsabilidade e guarda, o bem patrimonial
+  abaixo discriminado, comprometendo-me a zelar por sua conservação e a comunicar
+  qualquer dano, extravio ou necessidade de manutenção.</p>
+
+  <table class="table table-bordered">
+    <tbody>
+      <tr><th style="width:35%">Bem</th><td>{{ a.nome }}</td></tr>
+      <tr><th>Tombamento</th><td>{{ a.tombamento or '—' }}</td></tr>
+      <tr><th>Número de série</th><td>{{ a.numero_serie or '—' }}</td></tr>
+      <tr><th>Marca / Modelo</th><td>{{ a.marca or '—' }} {{ a.modelo or '' }}</td></tr>
+      <tr><th>Estado de conservação</th><td>{{ a.rotulo_estado }}</td></tr>
+      <tr><th>Setor</th><td>{{ a.setor_atual.nome if a.setor_atual else '—' }}</td></tr>
+      <tr><th>Responsável</th><td>{{ a.responsavel.nome if a.responsavel else '—' }}</td></tr>
+      <tr><th>Valor de aquisição</th><td>{{ a.valor_aquisicao | moeda if a.valor_aquisicao else '—' }}</td></tr>
+    </tbody>
+  </table>
+
+  <p class="mt-5">_______________________, ______ de ____________________ de __________.</p>
+
+  <div class="row mt-5 text-center">
+    <div class="col-6">
+      <div style="border-top:1px solid #000; padding-top:.5rem">
+        {{ a.responsavel.nome if a.responsavel else 'Responsável' }}<br>
+        <small class="text-muted">Responsável pelo bem</small>
+      </div>
+    </div>
+    <div class="col-6">
+      <div style="border-top:1px solid #000; padding-top:.5rem">
+        {{ marca.nome }}<br><small class="text-muted">Gestor do patrimônio</small>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
