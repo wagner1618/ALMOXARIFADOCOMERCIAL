@@ -1,0 +1,25 @@
+{% extends "layout_app.html" %}
+{% from "partials/forms.html" import campo %}
+{% block titulo %}{{ titulo }}{% endblock %}
+{% block cabecalho %}{{ titulo }}{% endblock %}
+
+{% block conteudo %}
+<div class="card card-stat"><div class="card-body p-4">
+  <form method="post" novalidate>
+    {{ form.hidden_tag() }}
+    <div class="row">
+      <div class="col-md-4">{{ campo(form.tipo) }}</div>
+      <div class="col-md-8">{{ campo(form.setor_id) }}</div>
+    </div>
+    {{ campo(form.observacoes) }}
+    <p class="text-secondary small">
+      Ao abrir, o sistema cria um snapshot dos itens do setor (saldos de consumíveis ou
+      ativos a recertificar). A contagem é feita na tela seguinte.
+    </p>
+    <div class="d-flex gap-2 mt-2">
+      {{ form.submit(class="btn btn-primary") }}
+      <a href="{{ url_for('inventarios.listar') }}" class="btn btn-light">Cancelar</a>
+    </div>
+  </form>
+</div></div>
+{% endblock %}

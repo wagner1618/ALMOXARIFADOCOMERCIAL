@@ -1,0 +1,52 @@
+{% extends "layout_app.html" %}
+{% from "partials/forms.html" import page_actions %}
+{% block titulo %}Inventário{% endblock %}
+{% block cabecalho %}Inventário e recertificação{% endblock %}
+
+{% block conteudo %}
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+  <div class="btn-group btn-group-sm" role="group">
+    {% for chave, rotulo in [('','Todos'), ('ABERTO','Em contagem'), ('FECHADO','Fechados'), ('CANCELADO','Cancelados')] %}
+      <a href="{{ url_for('inventarios.listar', status=chave) }}"
+         class="btn {{ 'btn-primary' if (status or '') == chave else 'btn-outline-secondary' }}">{{ rotulo }}</a>
+    {% endfor %}
+  </div>
+  {{ page_actions('Novo inventário', url_for('inventarios.novo')) }}
+</div>
+
+{% if not paginacao.items %}
+  <div class="card card-stat"><div class="card-body text-center text-secondary py-5">
+    <i class="bi bi-clipboard-check fs-1 d-block mb-2"></i>Nenhum inventário.
+  </div></div>
+{% else %}
+<div class="card card-stat"><div class="table-responsive">
+  <table class="table table-hover align-middle mb-0">
+    <thead class="table-light"><tr>
+      <th>#</th><th>Tipo</th><th>Setor</th><th>Início</th>
+      <th class="text-center">Itens</th><th class="text-center">Diverg.</th>
+      <th class="text-center">Status</th><th></th>
+    </tr></thead>
+    <tbody>
+      {% for inv in paginacao.items %}
+      <tr>
+        <td><strong>#{{ inv.numero }}</strong></td>
+        <td>{{ inv.rotulo_tipo }}</td>
+        <td>{{ inv.setor.nome if inv.setor else '—' }}</td>
+        <td>{{ inv.data_inicio | data if inv.data_inicio else '—' }}</td>
+        <td class="text-center">{{ inv.itens_contados }}/{{ inv.total_itens }}</td>
+        <td class="text-center">
+          {% if inv.itens_divergentes %}<span class="badge text-bg-warning">{{ inv.itens_divergentes }}</span>
+          {% else %}—{% endif %}
+        </td>
+        <td class="text-center"><span class="badge text-bg-{{ inv.cor_status }}">{{ inv.rotulo_status }}</span></td>
+        <td class="text-end">
+          <a href="{{ url_for('inventarios.detalhe', inventario_id=inv.id) }}"
+             class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i></a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+{% endif %}
+{% endblock %}

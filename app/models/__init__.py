@@ -16,6 +16,7 @@ from app.models.documento import Documento, ModeloDocumento
 from app.models.emprestimo import Emprestimo
 from app.models.estoque import SaldoEstoque
 from app.models.fornecedor import Fornecedor
+from app.models.inventario import Inventario, InventarioItem
 from app.models.localizacao import Localizacao
 from app.models.movimentacao import LoteMovimentacao, Movimentacao
 from app.models.organizacao import Organizacao
@@ -53,6 +54,8 @@ __all__ = [
     "Empenho",
     "Emprestimo",
     "Fornecedor",
+    "Inventario",
+    "InventarioItem",
     "Liquidacao",
     "Localizacao",
     "LoteMovimentacao",

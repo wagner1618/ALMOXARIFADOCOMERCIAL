@@ -1,0 +1,104 @@
+{% extends "layout_app.html" %}
+{% block titulo %}Inventário #{{ inv.numero }}{% endblock %}
+{% block cabecalho %}Inventário #{{ inv.numero }} — {{ inv.rotulo_tipo }}{% endblock %}
+
+{% block conteudo %}
+<div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-2">
+  <div>
+    <span class="badge text-bg-{{ inv.cor_status }} fs-6">{{ inv.rotulo_status }}</span>
+    <span class="text-secondary ms-2">
+      {{ inv.setor.nome if inv.setor else '—' }} · {{ inv.itens_contados }}/{{ inv.total_itens }} contados
+    </span>
+  </div>
+  {% if inv.aberto %}
+  <div class="d-flex gap-2">
+    <form method="post" action="{{ url_for('inventarios.fechar', inventario_id=inv.id) }}"
+          onsubmit="return confirm('Fechar o inventário? Divergências de consumíveis viram ajuste de saldo.')">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="btn btn-success"><i class="bi bi-check2-circle me-1"></i>Fechar</button>
+    </form>
+    <form method="post" action="{{ url_for('inventarios.cancelar', inventario_id=inv.id) }}"
+          onsubmit="return confirm('Cancelar este inventário?')">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="btn btn-outline-danger"><i class="bi bi-x-circle me-1"></i>Cancelar</button>
+    </form>
+  </div>
+  {% endif %}
+</div>
+
+<form method="post" action="{{ url_for('inventarios.contar', inventario_id=inv.id) }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="card card-stat"><div class="table-responsive">
+    <table class="table align-middle mb-0">
+      {% if inv.is_consumivel %}
+      <thead class="table-light"><tr>
+        <th>Item</th><th class="text-end">Esperado</th>
+        <th style="width:160px">Contado</th><th class="text-end">Diferença</th>
+      </tr></thead>
+      <tbody>
+        {% for it in inv.itens %}
+        <tr class="{{ 'table-warning' if it.divergencia }}">
+          <td>{{ it.descricao }}</td>
+          <td class="text-end">{{ it.quantidade_esperada | numero(3) }}</td>
+          <td>
+            {% if inv.aberto %}
+              <input type="number" step="0.001" min="0" name="qtd_{{ it.id }}"
+                     value="{{ it.quantidade_contada if it.quantidade_contada is not none else '' }}"
+                     class="form-control form-control-sm">
+            {% else %}
+              {{ it.quantidade_contada | numero(3) if it.quantidade_contada is not none else '—' }}
+            {% endif %}
+          </td>
+          <td class="text-end {{ 'text-danger' if it.divergencia }}">
+            {{ it.diferenca | numero(3) if it.contado else '—' }}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      {% else %}
+      <thead class="table-light"><tr>
+        <th>Ativo</th><th style="width:180px">Estado</th>
+        <th style="width:180px">Situação</th><th class="text-center">Diverg.</th>
+      </tr></thead>
+      <tbody>
+        {% for it in inv.itens %}
+        <tr class="{{ 'table-warning' if it.divergencia }}">
+          <td>{{ it.descricao }}</td>
+          <td>
+            {% if inv.aberto %}
+            <select name="estado_{{ it.id }}" class="form-select form-select-sm">
+              {% for valor, rotulo in estados %}
+                <option value="{{ valor }}" {{ 'selected' if it.estado_conservacao == valor }}>{{ rotulo }}</option>
+              {% endfor %}
+            </select>
+            {% else %}{{ it.estado_conservacao or '—' }}{% endif %}
+          </td>
+          <td>
+            {% if inv.aberto %}
+            <select name="status_{{ it.id }}" class="form-select form-select-sm">
+              {% for valor, rotulo in situacoes %}
+                <option value="{{ valor }}" {{ 'selected' if it.status_ciclo == valor }}>{{ rotulo }}</option>
+              {% endfor %}
+            </select>
+            {% else %}{{ it.status_ciclo or '—' }}{% endif %}
+          </td>
+          <td class="text-center">
+            {% if it.divergencia %}<i class="bi bi-exclamation-triangle text-warning"></i>{% else %}—{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      {% endif %}
+    </table>
+  </div></div>
+
+  {% if inv.aberto %}
+  <div class="d-flex gap-2 mt-3">
+    <button class="btn btn-primary"><i class="bi bi-save me-1"></i>Salvar contagem</button>
+    <a href="{{ url_for('inventarios.listar') }}" class="btn btn-light">Voltar</a>
+  </div>
+  {% else %}
+  <a href="{{ url_for('inventarios.listar') }}" class="btn btn-light mt-3"><i class="bi bi-arrow-left me-1"></i>Voltar</a>
+  {% endif %}
+</form>
+{% endblock %}

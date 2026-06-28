@@ -50,6 +50,8 @@
     {{ item('estoque.movimentacoes', 'Movimentações', 'bi-arrow-left-right', 'produto.ver',
             ativos=['estoque.movimentacoes']) }}
     {{ item('transferencias.listar', 'Transferências', 'bi-truck', 'transferencia.enviar') }}
+    {{ item('inventarios.listar', 'Inventário', 'bi-clipboard-check', 'inventario.realizar',
+            ativos=['inventarios.listar','inventarios.novo','inventarios.detalhe']) }}
 
     <div class="nav-section">Patrimônio</div>
     {{ item('ativos.listar', 'Ativos', 'bi-pc-display', 'ativo.ver') }}

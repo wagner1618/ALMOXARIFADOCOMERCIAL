@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from datetime import date
-
 from flask import Blueprint, jsonify, redirect, render_template, url_for
 from flask_login import current_user, login_required
 from sqlalchemy import func, select
@@ -16,7 +14,7 @@ from app.models.setor import Setor
 from app.models.transferencia import ENVIADA, RECEBIDA_COM_DIVERGENCIA, Transferencia
 from app.models.usuario import Usuario
 from app.security import setores_operacionais_ids, setores_visiveis_ids
-from app.services import alertas
+from app.services import alertas, inventario_service
 
 bp = Blueprint("main", __name__)
 
@@ -61,18 +59,10 @@ def dashboard():
         ),
     }
 
-    revisoes_vencidas = db.session.scalars(
-        select(Ativo).where(
-            Ativo.organizacao_id == org_id,
-            Ativo.status_ciclo != BAIXADO,
-            Ativo.proxima_revisao_em.is_not(None),
-            Ativo.proxima_revisao_em < date.today(),
-        )
-    ).all()
-
     visiveis = setores_visiveis_ids(current_user)
     operacionais = setores_operacionais_ids(current_user)
     itens_alerta = alertas.itens_em_alerta(org_id, setor_ids=visiveis)
+    revisoes_vencidas = inventario_service.ativos_revisao_vencida(org_id, setor_ids=visiveis)
     ultimas_mov = db.session.scalars(
         select(Movimentacao)
         .where(Movimentacao.organizacao_id == org_id)
