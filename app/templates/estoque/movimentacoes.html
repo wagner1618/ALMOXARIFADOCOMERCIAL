@@ -48,6 +48,7 @@
     <thead class="table-light"><tr>
       <th>Data</th><th>Tipo</th><th>Produto</th><th class="text-end">Qtd</th>
       <th>Origem</th><th>Destino</th><th class="text-end">Valor</th><th>Usuário</th>
+      {% if current_user.tem_permissao('documento.emitir') %}<th>Documento</th>{% endif %}
     </tr></thead>
     <tbody>
       {% for m in paginacao.items %}
@@ -60,6 +61,19 @@
         <td class="text-secondary">{{ m.destino.nome if m.destino else '—' }}</td>
         <td class="text-end">{{ m.valor_total | moeda if m.valor_total else '—' }}</td>
         <td class="text-secondary small">{{ m.usuario.nome if m.usuario else '—' }}</td>
+        {% if current_user.tem_permissao('documento.emitir') %}
+        <td class="text-nowrap">
+          {% if m.documento_id %}
+            <a href="{{ url_for('documentos.detalhe', documento_id=m.documento_id) }}"
+               class="btn btn-sm btn-outline-secondary"><i class="bi bi-file-earmark-text me-1"></i>Ver</a>
+          {% else %}
+            <form method="post" action="{{ url_for('documentos.emitir_movimentacao', movimentacao_id=m.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button class="btn btn-sm btn-outline-primary"><i class="bi bi-file-earmark-plus me-1"></i>Emitir</button>
+            </form>
+          {% endif %}
+        </td>
+        {% endif %}
       </tr>
       {% endfor %}
     </tbody>

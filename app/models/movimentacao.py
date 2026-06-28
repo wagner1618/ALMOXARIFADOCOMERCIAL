@@ -100,7 +100,9 @@ class Movimentacao(TenantMixin, TimestampMixin, db.Model):
     nota_fiscal_id: Mapped[int | None] = mapped_column(
         ForeignKey("notas_fiscais.id", ondelete="SET NULL"), nullable=True, index=True
     )
-    # documento_id virá na fase de documentos.
+    documento_id: Mapped[int | None] = mapped_column(
+        ForeignKey("documentos.id", ondelete="SET NULL"), nullable=True, index=True
+    )
 
     produto: Mapped[Produto | None] = relationship()
     usuario: Mapped[Usuario | None] = relationship()

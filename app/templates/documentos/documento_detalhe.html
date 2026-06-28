@@ -1,0 +1,30 @@
+{% extends "layout_app.html" %}
+{% block titulo %}{{ doc.numero }}{% endblock %}
+{% block cabecalho %}Documento {{ doc.numero }}{% endblock %}
+
+{% block conteudo %}
+<div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-2">
+  <span class="badge text-bg-secondary fs-6">{{ doc.rotulo_tipo }}</span>
+  <div class="d-flex gap-2">
+    <a href="{{ url_for('documentos.reimprimir', documento_id=doc.id) }}" target="_blank"
+       class="btn btn-outline-secondary"><i class="bi bi-printer me-1"></i>Reimprimir</a>
+    <a href="{{ url_for('documentos.baixar', documento_id=doc.id) }}" class="btn btn-primary">
+      <i class="bi bi-download me-1"></i>Baixar</a>
+  </div>
+</div>
+
+<div class="card card-stat mb-3"><div class="card-body">
+  <dl class="row mb-0">
+    <dt class="col-sm-3 text-secondary">Número</dt><dd class="col-sm-9">{{ doc.numero }}</dd>
+    <dt class="col-sm-3 text-secondary">Data</dt><dd class="col-sm-9">{{ doc.data | data if doc.data else '—' }}</dd>
+    <dt class="col-sm-3 text-secondary">Origem</dt><dd class="col-sm-9">{{ doc.setor_origem.nome if doc.setor_origem else '—' }}</dd>
+    <dt class="col-sm-3 text-secondary">Destino</dt><dd class="col-sm-9">{{ doc.setor_destino.nome if doc.setor_destino else '—' }}</dd>
+    <dt class="col-sm-3 text-secondary">Emitido por</dt><dd class="col-sm-9">{{ doc.emitido_por.nome if doc.emitido_por else '—' }}</dd>
+    <dt class="col-sm-3 text-secondary">Formato</dt><dd class="col-sm-9">{{ doc.formato|upper }}</dd>
+    <dt class="col-sm-3 text-secondary">Hash (SHA-256)</dt>
+    <dd class="col-sm-9"><code class="small">{{ doc.hash or '—' }}</code></dd>
+  </dl>
+</div></div>
+
+<a href="{{ url_for('documentos.listar') }}" class="btn btn-light"><i class="bi bi-arrow-left me-1"></i>Voltar</a>
+{% endblock %}

@@ -57,6 +57,31 @@ def criar_papeis_padrao(org: Organizacao) -> list[Papel]:
     return papeis
 
 
+def criar_modelos_documento_padrao(org: Organizacao) -> list:
+    """Cria (idempotente) um ModeloDocumento editável por tipo, com o template base."""
+    from app.models.documento import ROTULO_DOCUMENTO, TIPOS_DOCUMENTO, ModeloDocumento
+    from app.services.documento_service import MODELO_PADRAO
+
+    modelos = []
+    for tipo in TIPOS_DOCUMENTO:
+        existente = db.session.scalar(
+            select(ModeloDocumento).where(
+                ModeloDocumento.organizacao_id == org.id, ModeloDocumento.tipo == tipo
+            )
+        )
+        if existente is None:
+            existente = ModeloDocumento(
+                organizacao_id=org.id,
+                tipo=tipo,
+                nome=f"Modelo padrão — {ROTULO_DOCUMENTO[tipo]}",
+                conteudo_html=MODELO_PADRAO,
+            )
+            db.session.add(existente)
+        modelos.append(existente)
+    db.session.flush()
+    return modelos
+
+
 def criar_organizacao(
     nome: str, *, slug: str | None = None, plano: str = "basico", commit: bool = True
 ) -> Organizacao:
@@ -77,6 +102,7 @@ def criar_organizacao(
     principal.atualizar_path()
 
     criar_papeis_padrao(org)
+    criar_modelos_documento_padrao(org)
     if commit:
         db.session.commit()
     return org

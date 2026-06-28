@@ -1,0 +1,93 @@
+{% extends "layout_app.html" %}
+{% block titulo %}Documentos{% endblock %}
+{% block cabecalho %}Documentos{% endblock %}
+
+{% block conteudo %}
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+  <p class="text-secondary mb-0">Comprovantes emitidos — busque, baixe e reimprima.</p>
+  {% if current_user.tem_permissao('config.organizacao') %}
+    <a href="{{ url_for('documentos.modelos') }}" class="btn btn-outline-secondary">
+      <i class="bi bi-file-earmark-code me-1"></i>Modelos</a>
+  {% endif %}
+</div>
+
+<form method="get" class="card card-stat mb-3"><div class="card-body py-3">
+  <div class="row g-2 align-items-end">
+    <div class="col-md-3">
+      <label class="form-label small mb-1">Tipo</label>
+      <select name="tipo" class="form-select">
+        <option value="">Todos</option>
+        {% for valor, rotulo in tipos %}
+          <option value="{{ valor }}" {{ 'selected' if tipo == valor }}>{{ rotulo }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label small mb-1">Setor</label>
+      <select name="setor" class="form-select">
+        <option value="">Todos</option>
+        {% for s in setores %}
+          <option value="{{ s.id }}" {{ 'selected' if setor_id == s.id }}>{{ s.nome }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-2">
+      <label class="form-label small mb-1">De</label>
+      <input type="date" name="de" value="{{ de or '' }}" class="form-control">
+    </div>
+    <div class="col-md-2">
+      <label class="form-label small mb-1">Até</label>
+      <input type="date" name="ate" value="{{ ate or '' }}" class="form-control">
+    </div>
+    <div class="col-md-2 d-grid">
+      <button class="btn btn-primary"><i class="bi bi-funnel me-1"></i>Filtrar</button>
+    </div>
+  </div>
+</div></form>
+
+{% if not paginacao.items %}
+  <div class="card card-stat"><div class="card-body text-center text-secondary py-5">
+    <i class="bi bi-file-earmark-text fs-1 d-block mb-2"></i>Nenhum documento encontrado.
+  </div></div>
+{% else %}
+<div class="card card-stat"><div class="table-responsive">
+  <table class="table table-hover align-middle mb-0">
+    <thead class="table-light"><tr>
+      <th>Número</th><th>Tipo</th><th>Data</th><th>Origem</th><th>Destino</th>
+      <th class="text-center">Formato</th><th></th>
+    </tr></thead>
+    <tbody>
+      {% for d in paginacao.items %}
+      <tr>
+        <td><strong>{{ d.numero }}</strong></td>
+        <td>{{ d.rotulo_tipo }}</td>
+        <td>{{ d.data | data if d.data else '—' }}</td>
+        <td class="text-secondary">{{ d.setor_origem.nome if d.setor_origem else '—' }}</td>
+        <td class="text-secondary">{{ d.setor_destino.nome if d.setor_destino else '—' }}</td>
+        <td class="text-center">
+          <span class="badge text-bg-{{ 'danger' if d.is_pdf else 'secondary' }}">{{ d.formato|upper }}</span>
+        </td>
+        <td class="text-end text-nowrap">
+          <a href="{{ url_for('documentos.detalhe', documento_id=d.id) }}"
+             class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i></a>
+          <a href="{{ url_for('documentos.baixar', documento_id=d.id) }}"
+             class="btn btn-sm btn-outline-secondary"><i class="bi bi-download"></i></a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+
+{% if paginacao.pages > 1 %}
+<nav class="mt-3"><ul class="pagination justify-content-center">
+  {% set args = {'tipo': tipo or '', 'setor': setor_id or '', 'de': de or '', 'ate': ate or ''} %}
+  <li class="page-item {{ 'disabled' if not paginacao.has_prev }}">
+    <a class="page-link" href="{{ url_for('documentos.listar', page=paginacao.prev_num, **args) }}">Anterior</a></li>
+  <li class="page-item disabled"><span class="page-link">{{ paginacao.page }} / {{ paginacao.pages }}</span></li>
+  <li class="page-item {{ 'disabled' if not paginacao.has_next }}">
+    <a class="page-link" href="{{ url_for('documentos.listar', page=paginacao.next_num, **args) }}">Próxima</a></li>
+</ul></nav>
+{% endif %}
+{% endif %}
+{% endblock %}

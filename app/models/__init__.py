@@ -12,6 +12,7 @@ from app.models.compras import (
     PedidoCompraItem,
 )
 from app.models.definicao_campo import DefinicaoCampo
+from app.models.documento import Documento, ModeloDocumento
 from app.models.emprestimo import Emprestimo
 from app.models.estoque import SaldoEstoque
 from app.models.fornecedor import Fornecedor
@@ -47,6 +48,7 @@ __all__ = [
     "Contrato",
     "ContratoItem",
     "DefinicaoCampo",
+    "Documento",
     "DotacaoOrcamentaria",
     "Empenho",
     "Emprestimo",
@@ -54,6 +56,7 @@ __all__ = [
     "Liquidacao",
     "Localizacao",
     "LoteMovimentacao",
+    "ModeloDocumento",
     "Movimentacao",
     "NotaFiscal",
     "NotaFiscalItem",

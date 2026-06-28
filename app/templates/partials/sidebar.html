@@ -86,8 +86,14 @@
     {{ item('categorias.listar', 'Categorias', 'bi-tags', 'setor.gerenciar') }}
     {{ item('localizacoes.listar', 'Localizações', 'bi-geo-alt', 'setor.gerenciar') }}
 
+    <div class="nav-section">Documentos</div>
+    {{ item('documentos.listar', 'Documentos', 'bi-file-earmark-text', 'documento.emitir',
+            ativos=['documentos.listar','documentos.detalhe']) }}
+
     <div class="nav-section">Administração</div>
     {{ item('definicoes.listar', 'Campos customizados', 'bi-ui-checks', 'config.campos') }}
+    {{ item('documentos.modelos', 'Modelos de documento', 'bi-file-earmark-code', 'config.organizacao',
+            ativos=['documentos.modelos','documentos.modelo_editar']) }}
     {{ em_breve('Usuários', 'bi-people', 'usuario.gerenciar') }}
     {{ em_breve('Papéis', 'bi-shield-lock', 'papel.gerenciar') }}
     {{ em_breve('Relatórios', 'bi-bar-chart', 'relatorio.ver') }}
