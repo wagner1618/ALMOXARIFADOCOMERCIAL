@@ -1,0 +1,59 @@
+{% extends "layout_app.html" %}
+{% from "partials/forms.html" import page_actions %}
+{% block titulo %}Campos customizados{% endblock %}
+{% block cabecalho %}Campos customizados{% endblock %}
+
+{% set rotulo_entidade = {'PRODUTO':'Produtos','ATIVO':'Ativos','SETOR':'Setores','MOVIMENTACAO':'Movimentações'} %}
+
+{% block conteudo %}
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+  <ul class="nav nav-pills">
+    {% for e in entidades %}
+      <li class="nav-item">
+        <a class="nav-link {{ 'active' if e == entidade }}"
+           href="{{ url_for('definicoes.listar', entidade=e) }}">{{ rotulo_entidade[e] }}</a>
+      </li>
+    {% endfor %}
+  </ul>
+  {{ page_actions('Novo campo', url_for('definicoes.nova', entidade=entidade)) }}
+</div>
+
+{% if not definicoes %}
+  <div class="card card-stat"><div class="card-body text-center text-secondary py-5">
+    <i class="bi bi-ui-checks fs-1 d-block mb-2"></i>
+    Nenhum campo customizado para {{ rotulo_entidade[entidade]|lower }}.
+  </div></div>
+{% else %}
+<div class="card card-stat">
+  <table class="table table-hover align-middle mb-0">
+    <thead class="table-light"><tr>
+      <th>Ordem</th><th>Rótulo</th><th>Chave</th><th>Tipo</th>
+      <th>Categoria</th><th class="text-center">Obrig.</th>
+      <th class="text-center">Status</th><th class="text-end">Ações</th>
+    </tr></thead>
+    <tbody>
+      {% for d in definicoes %}
+      <tr class="{{ 'opacity-50' if not d.ativo }}">
+        <td>{{ d.ordem }}</td>
+        <td>{{ d.rotulo }}</td>
+        <td><code>{{ d.chave }}</code></td>
+        <td><span class="badge text-bg-light">{{ d.rotulo_tipo }}</span></td>
+        <td class="text-secondary">{{ d.categoria.nome if d.categoria else 'Todas' }}</td>
+        <td class="text-center">
+          {% if d.obrigatorio %}<i class="bi bi-asterisk text-danger small"></i>{% else %}—{% endif %}
+        </td>
+        <td class="text-center">
+          {% if d.ativo %}<span class="badge text-bg-success">Ativo</span>
+          {% else %}<span class="badge text-bg-secondary">Inativo</span>{% endif %}
+        </td>
+        <td class="text-end">
+          <a href="{{ url_for('definicoes.editar', def_id=d.id) }}"
+             class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+{% endblock %}

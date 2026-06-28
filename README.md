@@ -7,11 +7,12 @@ compras (privadas e públicas — Lei nº 14.133/2021), documentos em PDF e audi
 Construída com tecnologias **100% gratuitas / open source**. Interface, mensagens e
 documentação em **português do Brasil**.
 
-> **Status atual:** fundação concluída (Fase 0) e Fase 1 em andamento — multi-tenant,
-> autenticação (Argon2 + 2FA opcional), RBAC com escopo de setor, hierarquia de setores,
-> auditoria, dashboard e UI base. As demais fases (catálogo, estoque, transferências,
-> patrimônio, compras, documentos, relatórios) seguem o roadmap em
-> [`PROMPT_SISTEMA_COMERCIAL.md`](PROMPT_SISTEMA_COMERCIAL.md).
+> **Status atual:** Fases 0 a 3 concluídas — multi-tenant, autenticação (Argon2 + 2FA
+> opcional), RBAC com escopo de setor, **hierarquia de setores e visibilidade**, cadastros
+> base (categorias/localizações), **catálogo de produtos (consumível/durável) com campos
+> customizáveis (JSONB) e import/export Excel**, auditoria, dashboard e UI base. As próximas
+> fases (estoque, transferências com confirmação, patrimônio, compras, documentos,
+> relatórios) seguem o roadmap em [`PROMPT_SISTEMA_COMERCIAL.md`](PROMPT_SISTEMA_COMERCIAL.md).
 
 ---
 
@@ -22,7 +23,12 @@ documentação em **português do Brasil**.
   rate limiting no login, CSRF, headers de segurança (CSP/HSTS via Talisman).
 - 👥 **RBAC com escopo de setor:** papéis com níveis, permissões granulares e papéis
   padrão semeados (Administrador, Gestor, Comprador/Financeiro, Operador, Consulta).
-- 🌳 **Hierarquia de setores** em árvore (N níveis) com `path` materializado.
+- 🌳 **Hierarquia de setores** em árvore (N níveis) com `path` materializado e regras de
+  **visibilidade de estoque** entre setores (somente leitura).
+- 📦 **Catálogo de produtos** (consumível por quantidade / durável serializado), SKU
+  automático, foto, busca/filtros/paginação, **import/export Excel**.
+- 🧩 **Campos customizáveis (JSONB)** por entidade e categoria — texto, número, data,
+  sim/não, seleção única/múltipla e anexo — com validação no servidor e render dinâmico.
 - 🧾 **Auditoria append-only** de ações sensíveis.
 - 🎨 **UI white-label:** Bootstrap 5.3 + HTMX + Alpine.js, tema (logo/cores) por
   organização, sidebar colável, dashboard com gráficos (Chart.js). Tudo no padrão BR.

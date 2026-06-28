@@ -1,0 +1,64 @@
+{# Renderiza os campos customizados de uma entidade dinamicamente.
+   Parâmetros:
+     definicoes – lista de DefinicaoCampo
+     valores    – dict chave->valor atual
+     erros      – dict chave->mensagem (opcional)
+#}
+{% macro render_campos(definicoes, valores={}, erros={}) %}
+  {% if definicoes %}
+    <hr class="my-3">
+    <h2 class="h6 text-secondary">Campos adicionais</h2>
+    <div class="row">
+      {% for d in definicoes %}
+        {% set nome = cc_nome(d) %}
+        {% set valor = valores.get(d.chave) %}
+        {% set erro = erros.get(d.chave) %}
+        {% set invalida = ' is-invalid' if erro else '' %}
+        <div class="col-md-6">
+          {% if d.tipo == 'BOOLEANO' %}
+            <div class="form-check mb-3">
+              <input class="form-check-input{{ invalida }}" type="checkbox" id="{{ nome }}"
+                     name="{{ nome }}" {{ 'checked' if valor }}>
+              <label class="form-check-label" for="{{ nome }}">{{ d.rotulo }}</label>
+              {% if d.ajuda %}<div class="form-text">{{ d.ajuda }}</div>{% endif %}
+            </div>
+          {% else %}
+            <div class="mb-3">
+              <label class="form-label" for="{{ nome }}">
+                {{ d.rotulo }}{% if d.obrigatorio %} <span class="text-danger">*</span>{% endif %}
+              </label>
+              {% if d.tipo == 'SELECT' %}
+                <select class="form-select{{ invalida }}" id="{{ nome }}" name="{{ nome }}">
+                  <option value="">— selecione —</option>
+                  {% for op in d.opcoes %}
+                    <option value="{{ op }}" {{ 'selected' if valor == op }}>{{ op }}</option>
+                  {% endfor %}
+                </select>
+              {% elif d.tipo == 'MULTISELECT' %}
+                <select class="form-select{{ invalida }}" id="{{ nome }}" name="{{ nome }}" multiple
+                        size="{{ [d.opcoes|length, 4]|min }}">
+                  {% for op in d.opcoes %}
+                    <option value="{{ op }}" {{ 'selected' if valor and op in valor }}>{{ op }}</option>
+                  {% endfor %}
+                </select>
+              {% elif d.tipo == 'ARQUIVO' %}
+                <input class="form-control{{ invalida }}" type="file" id="{{ nome }}" name="{{ nome }}">
+                {% if valor %}<div class="form-text">Atual:
+                  <a href="{{ url_for('static', filename='uploads/' ~ valor) }}" target="_blank">ver anexo</a>
+                </div>{% endif %}
+              {% else %}
+                {% set tipo_html = 'number' if d.tipo == 'NUMERO' else 'text' %}
+                <input class="form-control{{ invalida }}" type="{{ tipo_html }}"
+                       {% if d.tipo == 'NUMERO' %}step="any"{% endif %}
+                       {% if d.tipo == 'DATA' %}placeholder="dd/mm/aaaa"{% endif %}
+                       id="{{ nome }}" name="{{ nome }}" value="{{ cc_valor_input(d, valor) }}">
+              {% endif %}
+              {% if d.ajuda %}<div class="form-text">{{ d.ajuda }}</div>{% endif %}
+              {% if erro %}<div class="invalid-feedback d-block">{{ erro }}</div>{% endif %}
+            </div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endmacro %}

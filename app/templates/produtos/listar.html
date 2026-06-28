@@ -1,0 +1,118 @@
+{% extends "layout_app.html" %}
+{% from "partials/forms.html" import page_actions %}
+{% block titulo %}Produtos{% endblock %}
+{% block cabecalho %}Produtos{% endblock %}
+
+{% block conteudo %}
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+  <p class="text-secondary mb-0">Catálogo de materiais (consumíveis e duráveis).</p>
+  <div class="d-flex gap-2">
+    {% if current_user.tem_permissao('config.campos') %}
+      <a href="{{ url_for('definicoes.listar') }}?entidade=PRODUTO" class="btn btn-outline-secondary">
+        <i class="bi bi-ui-checks me-1"></i>Campos
+      </a>
+    {% endif %}
+    <a href="{{ url_for('produtos.exportar') }}{{ '?inativos=1' if incluir_inativos }}"
+       class="btn btn-outline-success"><i class="bi bi-file-earmark-excel me-1"></i>Exportar</a>
+    {% if current_user.tem_permissao('produto.criar') %}
+      <a href="{{ url_for('produtos.importar') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-upload me-1"></i>Importar</a>
+      {{ page_actions('Novo produto', url_for('produtos.novo')) }}
+    {% endif %}
+  </div>
+</div>
+
+<form method="get" class="card card-stat mb-3">
+  <div class="card-body py-3">
+    <div class="row g-2 align-items-end">
+      <div class="col-md-4">
+        <label class="form-label small mb-1">Buscar</label>
+        <input type="search" name="q" value="{{ busca }}" class="form-control"
+               placeholder="Nome ou SKU">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label small mb-1">Categoria</label>
+        <select name="categoria" class="form-select">
+          <option value="">Todas</option>
+          {% for cid, cnome in categorias %}{% if cid %}
+            <option value="{{ cid }}" {{ 'selected' if categoria_id == cid }}>{{ cnome }}</option>
+          {% endif %}{% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label small mb-1">Tipo</label>
+        <select name="tipo" class="form-select">
+          <option value="">Todos</option>
+          <option value="CONSUMIVEL" {{ 'selected' if tipo == 'CONSUMIVEL' }}>Consumível</option>
+          <option value="DURAVEL" {{ 'selected' if tipo == 'DURAVEL' }}>Durável</option>
+        </select>
+      </div>
+      <div class="col-md-2 d-grid">
+        <button class="btn btn-primary"><i class="bi bi-search me-1"></i>Filtrar</button>
+      </div>
+    </div>
+    <div class="form-check mt-2">
+      <input class="form-check-input" type="checkbox" name="inativos" value="1" id="inativos"
+             {{ 'checked' if incluir_inativos }} onchange="this.form.submit()">
+      <label class="form-check-label small" for="inativos">Incluir inativos</label>
+    </div>
+  </div>
+</form>
+
+{% if not paginacao.items %}
+  <div class="card card-stat"><div class="card-body text-center text-secondary py-5">
+    <i class="bi bi-box fs-1 d-block mb-2"></i>Nenhum produto encontrado.
+  </div></div>
+{% else %}
+<div class="card card-stat">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light"><tr>
+        <th>SKU</th><th>Nome</th><th>Categoria</th><th>Tipo</th>
+        <th>Unid.</th><th class="text-end">Est. mín.</th>
+        <th class="text-center">Status</th><th class="text-end">Ações</th>
+      </tr></thead>
+      <tbody>
+        {% for p in paginacao.items %}
+        <tr class="{{ 'opacity-50' if not p.ativo }}">
+          <td><code>{{ p.sku }}</code></td>
+          <td>
+            {% if p.foto %}<i class="bi bi-image text-secondary me-1"></i>{% endif %}{{ p.nome }}
+          </td>
+          <td class="text-secondary">{{ p.categoria.nome if p.categoria else '—' }}</td>
+          <td>
+            {% if p.is_consumivel %}<span class="badge text-bg-info">Consumível</span>
+            {% else %}<span class="badge text-bg-warning">Durável</span>{% endif %}
+          </td>
+          <td>{{ p.unidade }}</td>
+          <td class="text-end">{{ p.estoque_minimo | numero(0) }}</td>
+          <td class="text-center">
+            {% if p.ativo %}<span class="badge text-bg-success">Ativo</span>
+            {% else %}<span class="badge text-bg-secondary">Inativo</span>{% endif %}
+          </td>
+          <td class="text-end">
+            <a href="{{ url_for('produtos.editar', produto_id=p.id) }}"
+               class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% if paginacao.pages > 1 %}
+<nav class="mt-3"><ul class="pagination justify-content-center">
+  {% set args = {'q': busca, 'categoria': categoria_id or '', 'tipo': tipo or '', 'inativos': '1' if incluir_inativos else ''} %}
+  <li class="page-item {{ 'disabled' if not paginacao.has_prev }}">
+    <a class="page-link" href="{{ url_for('produtos.listar', page=paginacao.prev_num, **args) }}">Anterior</a>
+  </li>
+  <li class="page-item disabled"><span class="page-link">
+    {{ paginacao.page }} / {{ paginacao.pages }}</span></li>
+  <li class="page-item {{ 'disabled' if not paginacao.has_next }}">
+    <a class="page-link" href="{{ url_for('produtos.listar', page=paginacao.next_num, **args) }}">Próxima</a>
+  </li>
+</ul></nav>
+{% endif %}
+{% endif %}
+{% endblock %}

@@ -122,10 +122,16 @@ def seed_cmd(demo: bool) -> None:
 
     # Categorias e uma localização de exemplo.
     from app.models.categoria import Categoria
+    from app.models.definicao_campo import ENTIDADE_PRODUTO, TIPO_SELECT, TIPO_TEXTO, DefinicaoCampo
     from app.models.localizacao import Localizacao
+    from app.models.produto import TIPO_CONSUMIVEL, TIPO_DURAVEL
+    from app.services import produto_service
 
+    cats = {}
     for nome_cat in ("Informática", "Material de Escritório", "Limpeza", "Mobiliário"):
-        db.session.add(Categoria(organizacao_id=org.id, nome=nome_cat))
+        c = Categoria(organizacao_id=org.id, nome=nome_cat)
+        db.session.add(c)
+        cats[nome_cat] = c
     db.session.add(
         Localizacao(
             organizacao_id=org.id,
@@ -133,6 +139,31 @@ def seed_cmd(demo: bool) -> None:
             nome="Prateleira A1",
             descricao="Estoque principal",
         )
+    )
+    db.session.flush()
+
+    # Campos customizados de exemplo (categoria Informática).
+    db.session.add_all(
+        [
+            DefinicaoCampo(
+                organizacao_id=org.id,
+                entidade=ENTIDADE_PRODUTO,
+                chave="processador",
+                rotulo="Processador",
+                tipo=TIPO_TEXTO,
+                ordem=1,
+                aplica_a_categoria_id=cats["Informática"].id,
+            ),
+            DefinicaoCampo(
+                organizacao_id=org.id,
+                entidade=ENTIDADE_PRODUTO,
+                chave="condicao",
+                rotulo="Condição",
+                tipo=TIPO_SELECT,
+                opcoes=["Novo", "Usado", "Recondicionado"],
+                ordem=2,
+            ),
+        ]
     )
 
     senha = "Almox@2026"
@@ -143,6 +174,46 @@ def seed_cmd(demo: bool) -> None:
         username="admin",
         senha=senha,
         deve_trocar_senha=False,
+        commit=False,
+    )
+    db.session.flush()
+
+    # Alguns produtos de exemplo.
+    produto_service.criar_produto(
+        org.id,
+        nome="Papel A4 75g (resma)",
+        categoria_id=cats["Material de Escritório"].id,
+        unidade="RESMA",
+        estoque_minimo=10,
+        valor_unitario_referencia=25,
+        commit=False,
+    )
+    produto_service.criar_produto(
+        org.id,
+        nome="Caneta esferográfica azul",
+        categoria_id=cats["Material de Escritório"].id,
+        unidade="UN",
+        estoque_minimo=50,
+        commit=False,
+    )
+    produto_service.criar_produto(
+        org.id,
+        nome="Notebook Dell Latitude",
+        tipo_controle=TIPO_DURAVEL,
+        categoria_id=cats["Informática"].id,
+        unidade="UN",
+        marca="Dell",
+        modelo="Latitude 3540",
+        campos={"processador": "Intel i5", "condicao": "Novo"},
+        commit=False,
+    )
+    produto_service.criar_produto(
+        org.id,
+        nome="Detergente neutro 5L",
+        tipo_controle=TIPO_CONSUMIVEL,
+        categoria_id=cats["Limpeza"].id,
+        unidade="L",
+        estoque_minimo=5,
         commit=False,
     )
     db.session.commit()

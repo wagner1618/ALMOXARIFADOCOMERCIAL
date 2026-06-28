@@ -1,0 +1,52 @@
+{% extends "layout_app.html" %}
+{% from "partials/forms.html" import campo %}
+{% block titulo %}{{ titulo }}{% endblock %}
+{% block cabecalho %}{{ titulo }}{% endblock %}
+
+{% block conteudo %}
+<div class="row"><div class="col-lg-7">
+  <div class="card card-stat"><div class="card-body p-4">
+    <form method="post" novalidate>
+      {{ form.hidden_tag() }}
+      <div class="row">
+        <div class="col-md-6">
+          {% if definicao is defined %}
+            <div class="mb-3">
+              <label class="form-label">Entidade</label>
+              <input class="form-control" value="{{ form.entidade.data }}" disabled>
+              {{ form.entidade(type="hidden") }}
+            </div>
+          {% else %}
+            {{ campo(form.entidade) }}
+          {% endif %}
+        </div>
+        <div class="col-md-6">{{ campo(form.tipo) }}</div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-7">{{ campo(form.rotulo) }}</div>
+        <div class="col-md-5">
+          {{ campo(form.chave, "Gerado a partir do rótulo se vazio. Imutável após criar.") }}
+        </div>
+      </div>
+
+      {{ campo(form.opcoes, "Uma opção por linha — usado apenas em campos de seleção (única/múltipla).") }}
+
+      {{ campo(form.aplica_a_categoria_id, "Restringe o campo a produtos/ativos de uma categoria.") }}
+
+      <div class="row">
+        <div class="col-md-4">{{ campo(form.ordem) }}</div>
+        <div class="col-md-8">{{ campo(form.ajuda) }}</div>
+      </div>
+
+      {{ campo(form.obrigatorio) }}
+      {{ campo(form.ativo) }}
+
+      <div class="d-flex gap-2 mt-3">
+        {{ form.submit(class="btn btn-primary") }}
+        <a href="{{ url_for('definicoes.listar', entidade=form.entidade.data) }}" class="btn btn-light">Cancelar</a>
+      </div>
+    </form>
+  </div></div>
+</div></div>
+{% endblock %}

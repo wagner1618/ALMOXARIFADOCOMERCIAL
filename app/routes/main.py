@@ -7,6 +7,7 @@ from flask_login import current_user, login_required
 from sqlalchemy import func, select
 
 from app.extensions import db
+from app.models.produto import Produto
 from app.models.setor import Setor
 from app.models.usuario import Usuario
 
@@ -41,8 +42,12 @@ def dashboard():
         "setores": db.session.scalar(
             select(func.count(Setor.id)).where(Setor.organizacao_id == org_id)
         ),
-        # Placeholders das próximas fases — exibidos como "em breve" na UI.
-        "produtos": None,
+        "produtos": db.session.scalar(
+            select(func.count(Produto.id)).where(
+                Produto.organizacao_id == org_id, Produto.ativo.is_(True)
+            )
+        ),
+        # Placeholder da próxima fase (ativos/patrimônio).
         "ativos": None,
     }
     return render_template("dashboard.html", cartoes=cartoes)

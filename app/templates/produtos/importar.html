@@ -1,0 +1,48 @@
+{% extends "layout_app.html" %}
+{% block titulo %}Importar produtos{% endblock %}
+{% block cabecalho %}Importar produtos{% endblock %}
+
+{% block conteudo %}
+<div class="row"><div class="col-lg-8">
+  <div class="card card-stat mb-3"><div class="card-body p-4">
+    <p class="text-secondary">
+      Envie uma planilha <code>.xlsx</code> no formato do modelo. Produtos com SKU
+      existente são <strong>atualizados</strong>; os demais são <strong>criados</strong>.
+      A coluna “Categoria” usa o nome da categoria já cadastrada.
+    </p>
+    <a href="{{ url_for('produtos.modelo_importacao') }}" class="btn btn-outline-secondary mb-3">
+      <i class="bi bi-download me-1"></i>Baixar modelo
+    </a>
+    <form method="post" enctype="multipart/form-data">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="mb-3">
+        <label class="form-label">Planilha</label>
+        <input type="file" name="planilha" accept=".xlsx" class="form-control" required>
+      </div>
+      <button class="btn btn-primary"><i class="bi bi-upload me-1"></i>Importar</button>
+      <a href="{{ url_for('produtos.listar') }}" class="btn btn-light">Voltar</a>
+    </form>
+  </div></div>
+
+  {% if resultado %}
+  <div class="card card-stat"><div class="card-body p-4">
+    <h2 class="h6">Resultado</h2>
+    <div class="d-flex gap-3 mb-3">
+      <span class="badge text-bg-success fs-6">{{ resultado.criados }} criados</span>
+      <span class="badge text-bg-info fs-6">{{ resultado.atualizados }} atualizados</span>
+      <span class="badge text-bg-danger fs-6">{{ resultado.erros|length }} com erro</span>
+    </div>
+    {% if resultado.erros %}
+    <table class="table table-sm">
+      <thead><tr><th>Linha</th><th>Erro</th></tr></thead>
+      <tbody>
+        {% for e in resultado.erros %}
+        <tr><td>{{ e.linha }}</td><td class="text-danger">{{ e.msg }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+  </div></div>
+  {% endif %}
+</div></div>
+{% endblock %}

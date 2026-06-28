@@ -37,7 +37,7 @@
     {{ item('main.dashboard', 'Painel', 'bi-speedometer2') }}
 
     <div class="nav-section">Estoque</div>
-    {{ em_breve('Produtos', 'bi-box', 'produto.ver') }}
+    {{ item('produtos.listar', 'Produtos', 'bi-box', 'produto.ver') }}
     {{ em_breve('Movimentações', 'bi-arrow-left-right', 'produto.ver') }}
     {{ em_breve('Transferências', 'bi-truck', 'transferencia.enviar') }}
 
@@ -51,6 +51,7 @@
     {{ item('localizacoes.listar', 'Localizações', 'bi-geo-alt', 'setor.gerenciar') }}
 
     <div class="nav-section">Administração</div>
+    {{ item('definicoes.listar', 'Campos customizados', 'bi-ui-checks', 'config.campos') }}
     {{ em_breve('Usuários', 'bi-people', 'usuario.gerenciar') }}
     {{ em_breve('Papéis', 'bi-shield-lock', 'papel.gerenciar') }}
     {{ em_breve('Relatórios', 'bi-bar-chart', 'relatorio.ver') }}

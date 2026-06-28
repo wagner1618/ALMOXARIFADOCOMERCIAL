@@ -1,0 +1,70 @@
+{% extends "layout_app.html" %}
+{% from "partials/forms.html" import campo %}
+{% from "partials/campos_customizados.html" import render_campos %}
+{% block titulo %}{{ titulo }}{% endblock %}
+{% block cabecalho %}{{ titulo }}{% endblock %}
+
+{% block conteudo %}
+<div class="row"><div class="col-lg-9">
+  <div class="card card-stat"><div class="card-body p-4">
+    <form method="post" enctype="multipart/form-data" novalidate>
+      {{ form.hidden_tag() }}
+
+      <div class="row">
+        <div class="col-md-8">{{ campo(form.nome) }}</div>
+        <div class="col-md-4">{{ campo(form.sku, "Deixe vazio para gerar automaticamente.") }}</div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-4">{{ campo(form.tipo_controle) }}</div>
+        <div class="col-md-5">
+          <div class="mb-3">
+            {{ form.categoria_id.label(class="form-label") }}
+            {{ form.categoria_id(class="form-select",
+                **{"hx-get": url_for('produtos.campos_por_categoria'),
+                   "hx-target": "#campos-customizados",
+                   "hx-trigger": "change",
+                   "hx-include": "[name='categoria_id']"}) }}
+          </div>
+        </div>
+        <div class="col-md-3">{{ campo(form.unidade) }}</div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-4">{{ campo(form.estoque_minimo) }}</div>
+        <div class="col-md-4">{{ campo(form.estoque_maximo) }}</div>
+        <div class="col-md-4">{{ campo(form.valor_unitario_referencia) }}</div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">{{ campo(form.marca) }}</div>
+        <div class="col-md-6">{{ campo(form.modelo) }}</div>
+      </div>
+
+      {{ campo(form.descricao) }}
+
+      <div class="row align-items-center">
+        <div class="col-md-8">{{ campo(form.foto, "Imagem do produto (PNG/JPG).") }}</div>
+        <div class="col-md-4">
+          {% if produto and produto.foto %}
+            <img src="{{ url_for('static', filename='uploads/' ~ produto.foto) }}"
+                 class="img-thumbnail" style="max-height:80px">
+          {% endif %}
+        </div>
+      </div>
+
+      {% if produto %}{{ campo(form.ativo) }}{% endif %}
+
+      <!-- Campos customizados (recarregados via HTMX ao trocar a categoria) -->
+      <div id="campos-customizados">
+        {{ render_campos(definicoes, valores_cc, erros_cc) }}
+      </div>
+
+      <div class="d-flex gap-2 mt-3">
+        {{ form.submit(class="btn btn-primary") }}
+        <a href="{{ url_for('produtos.listar') }}" class="btn btn-light">Cancelar</a>
+      </div>
+    </form>
+  </div></div>
+</div></div>
+{% endblock %}

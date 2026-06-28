@@ -146,6 +146,13 @@ def _registrar_filtros(app: Flask) -> None:
 
     app.jinja_env.globals["endpoint_existe"] = endpoint_existe
 
+    # Helpers para renderizar campos customizados nos templates.
+    from app.services import campos_customizados as cc
+
+    app.jinja_env.globals["cc_nome"] = cc.nome_campo
+    app.jinja_env.globals["cc_valor_input"] = cc.valor_para_input
+    app.jinja_env.globals["cc_formatar"] = cc.formatar_valor
+
 
 def _registrar_hooks(app: Flask) -> None:
     @app.before_request
