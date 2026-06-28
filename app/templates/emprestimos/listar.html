@@ -1,0 +1,79 @@
+{% extends "layout_app.html" %}
+{% from "partials/forms.html" import page_actions %}
+{% block titulo %}Empréstimos{% endblock %}
+{% block cabecalho %}Empréstimos{% endblock %}
+
+{% block conteudo %}
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+  <div class="btn-group btn-group-sm" role="group">
+    {% for chave, rotulo in [('abertos','Em aberto'), ('vencidos','Vencidos'), ('devolvidos','Devolvidos')] %}
+      <a href="{{ url_for('emprestimos.listar', filtro=chave) }}"
+         class="btn {{ 'btn-primary' if filtro == chave else 'btn-outline-secondary' }}">{{ rotulo }}</a>
+    {% endfor %}
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{{ url_for('emprestimos.recibos') }}" class="btn btn-outline-secondary">
+      <i class="bi bi-printer me-1"></i>Recibos</a>
+    {{ page_actions('Novo empréstimo', url_for('emprestimos.novo')) }}
+  </div>
+</div>
+
+{% if not paginacao.items %}
+  <div class="card card-stat"><div class="card-body text-center text-secondary py-5">
+    <i class="bi bi-box-arrow-right fs-1 d-block mb-2"></i>Nenhum empréstimo nesta visão.
+  </div></div>
+{% else %}
+<div class="card card-stat"><div class="table-responsive">
+  <table class="table table-hover align-middle mb-0">
+    <thead class="table-light"><tr>
+      <th>Item</th><th>Setor</th><th>Destinatário</th>
+      <th class="text-end">Pendente</th><th>Prevista</th><th class="text-center">Status</th>
+      <th style="min-width:200px"></th>
+    </tr></thead>
+    <tbody>
+      {% for e in paginacao.items %}
+      <tr>
+        <td>{{ e.descricao_item }}
+          <br><small class="text-secondary">{{ 'Durável' if e.is_duravel else 'Consumível' }}</small></td>
+        <td>{{ e.setor.nome if e.setor else '—' }}</td>
+        <td class="text-secondary">{{ e.destinatario or (e.responsavel.nome if e.responsavel else '—') }}</td>
+        <td class="text-end">{{ e.quantidade_pendente | numero(3) }}</td>
+        <td>{{ e.data_prevista | data if e.data_prevista else '—' }}</td>
+        <td class="text-center"><span class="badge text-bg-{{ e.cor_status }}">{{ e.rotulo_status }}</span></td>
+        <td class="text-end">
+          {% if e.em_aberto %}
+          <form method="post" action="{{ url_for('emprestimos.devolver', emprestimo_id=e.id, filtro=filtro) }}"
+                class="d-flex gap-1 justify-content-end">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            {% if not e.is_duravel %}
+              <input type="number" step="0.001" min="0" max="{{ e.quantidade_pendente }}" name="quantidade"
+                     class="form-control form-control-sm" style="width:90px"
+                     placeholder="{{ e.quantidade_pendente | numero(3) }}">
+            {% endif %}
+            <button class="btn btn-sm btn-success"
+                    onclick="return confirm('Confirmar devolução?')">
+              <i class="bi bi-arrow-return-left me-1"></i>Devolver</button>
+          </form>
+          {% else %}
+            <span class="text-secondary small">{{ e.data_devolucao | data if e.data_devolucao else '—' }}</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+
+{% if paginacao.pages > 1 %}
+<nav class="mt-3"><ul class="pagination justify-content-center">
+  <li class="page-item {{ 'disabled' if not paginacao.has_prev }}">
+    <a class="page-link" href="{{ url_for('emprestimos.listar', page=paginacao.prev_num, filtro=filtro) }}">Anterior</a>
+  </li>
+  <li class="page-item disabled"><span class="page-link">{{ paginacao.page }} / {{ paginacao.pages }}</span></li>
+  <li class="page-item {{ 'disabled' if not paginacao.has_next }}">
+    <a class="page-link" href="{{ url_for('emprestimos.listar', page=paginacao.next_num, filtro=filtro) }}">Próxima</a>
+  </li>
+</ul></nav>
+{% endif %}
+{% endif %}
+{% endblock %}

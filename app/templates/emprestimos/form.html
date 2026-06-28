@@ -1,0 +1,46 @@
+{% extends "layout_app.html" %}
+{% from "partials/forms.html" import campo %}
+{% block titulo %}{{ titulo }}{% endblock %}
+{% block cabecalho %}{{ titulo }}{% endblock %}
+
+{% block conteudo %}
+<div class="card card-stat"><div class="card-body p-4"
+     x-data="{ tipo: '{{ form.tipo.data or 'CONSUMIVEL' }}' }">
+  <form method="post" novalidate>
+    {{ form.hidden_tag() }}
+    <div class="row">
+      <div class="col-md-4">
+        <div class="mb-3">
+          {{ form.tipo.label(class="form-label") }}
+          {{ form.tipo(class="form-select", **{"x-model": "tipo"}) }}
+        </div>
+      </div>
+      <div class="col-md-8" x-show="tipo === 'CONSUMIVEL'">
+        <div class="row">
+          <div class="col-md-8">{{ campo(form.produto_id) }}</div>
+          <div class="col-md-4">{{ campo(form.quantidade) }}</div>
+        </div>
+      </div>
+      <div class="col-md-8" x-show="tipo === 'DURAVEL'" x-cloak>
+        {{ campo(form.ativo_id) }}
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6">{{ campo(form.setor_id, ajuda="Setor de origem do item (de onde sai).") }}</div>
+      <div class="col-md-6">{{ campo(form.data_prevista) }}</div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">{{ campo(form.destinatario, ajuda="Pessoa ou setor que recebe o item.") }}</div>
+      <div class="col-md-6">{{ campo(form.responsavel_id) }}</div>
+    </div>
+    {{ campo(form.observacoes) }}
+
+    <div class="d-flex gap-2 mt-2">
+      {{ form.submit(class="btn btn-primary") }}
+      <a href="{{ url_for('emprestimos.listar') }}" class="btn btn-light">Cancelar</a>
+    </div>
+  </form>
+</div></div>
+<style>[x-cloak]{display:none!important}</style>
+{% endblock %}

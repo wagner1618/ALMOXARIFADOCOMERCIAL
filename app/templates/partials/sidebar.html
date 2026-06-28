@@ -53,7 +53,8 @@
 
     <div class="nav-section">Patrimônio</div>
     {{ item('ativos.listar', 'Ativos', 'bi-pc-display', 'ativo.ver') }}
-    {{ em_breve('Empréstimos', 'bi-box-arrow-right', 'emprestimo.gerenciar') }}
+    {{ item('emprestimos.listar', 'Empréstimos', 'bi-box-arrow-right', 'emprestimo.gerenciar',
+            ativos=['emprestimos.listar','emprestimos.novo','emprestimos.recibos']) }}
 
     <div class="nav-section">Compras</div>
     {{ item('compras.fornecedores', 'Fornecedores', 'bi-shop', 'fornecedor.gerenciar') }}
