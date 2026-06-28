@@ -49,7 +49,7 @@
             ativos=['estoque.posicao','estoque.entrada','estoque.saida','estoque.lote','estoque.ajuste','estoque.lista_alertas']) }}
     {{ item('estoque.movimentacoes', 'Movimentações', 'bi-arrow-left-right', 'produto.ver',
             ativos=['estoque.movimentacoes']) }}
-    {{ em_breve('Transferências', 'bi-truck', 'transferencia.enviar') }}
+    {{ item('transferencias.listar', 'Transferências', 'bi-truck', 'transferencia.enviar') }}
 
     <div class="nav-section">Patrimônio</div>
     {{ em_breve('Ativos', 'bi-pc-display', 'ativo.ver') }}

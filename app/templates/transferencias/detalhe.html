@@ -1,0 +1,87 @@
+{% extends "layout_app.html" %}
+{% block titulo %}Transferência #{{ t.numero }}{% endblock %}
+{% block cabecalho %}Transferência #{{ t.numero }}{% endblock %}
+
+{% block conteudo %}
+<div class="row g-3">
+  <div class="col-lg-8">
+    <div class="card card-stat mb-3"><div class="card-body p-4">
+      <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+          <div class="h5 mb-1">
+            {{ t.origem.nome }} <i class="bi bi-arrow-right mx-1 text-secondary"></i> {{ t.destino.nome }}
+          </div>
+          <span class="badge text-bg-{{ t.cor_status }} fs-6">{{ t.rotulo_status }}</span>
+        </div>
+        <a href="{{ url_for('transferencias.listar') }}" class="btn btn-sm btn-light">Voltar</a>
+      </div>
+
+      <table class="table table-sm align-middle">
+        <thead class="table-light"><tr>
+          <th>Produto</th><th class="text-end">Enviada</th>
+          <th class="text-end">Recebida</th><th class="text-end">Corrigida</th>
+          <th class="text-end">Em trânsito</th><th>Divergência</th>
+        </tr></thead>
+        <tbody>
+          {% for i in t.itens %}
+          <tr class="{{ 'table-warning' if i.divergencia }}">
+            <td>{{ i.produto.nome if i.produto else '—' }}</td>
+            <td class="text-end">{{ i.quantidade_enviada | numero(3) }}</td>
+            <td class="text-end">{{ i.quantidade_recebida | numero(3) if i.quantidade_recebida is not none else '—' }}</td>
+            <td class="text-end">{{ i.quantidade_corrigida | numero(3) if i.quantidade_corrigida is not none else '—' }}</td>
+            <td class="text-end">{{ i.pendente_transito | numero(3) }}</td>
+            <td class="small">
+              {% if i.divergencia %}<span class="text-danger">{{ i.motivo_divergencia }}</span>{% else %}—{% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      {% if t.observacoes_envio %}<p class="small"><strong>Envio:</strong> {{ t.observacoes_envio }}</p>{% endif %}
+      {% if t.observacoes_recebimento %}<p class="small"><strong>Recebimento:</strong> {{ t.observacoes_recebimento }}</p>{% endif %}
+      {% if t.observacoes_correcao %}<p class="small"><strong>Correção:</strong> {{ t.observacoes_correcao }}</p>{% endif %}
+    </div></div>
+
+    <!-- Ações -->
+    <div class="d-flex gap-2 flex-wrap">
+      {% if pode_receber %}
+        <a href="{{ url_for('transferencias.receber', transf_id=t.id) }}" class="btn btn-success">
+          <i class="bi bi-clipboard-check me-1"></i>Receber e conferir</a>
+      {% endif %}
+      {% if pode_corrigir %}
+        <form method="post" action="{{ url_for('transferencias.corrigir', transf_id=t.id) }}"
+              onsubmit="return confirm('Estornar a pendência em trânsito de volta à origem?')">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="btn btn-primary"><i class="bi bi-wrench me-1"></i>Corrigir divergência</button>
+        </form>
+      {% endif %}
+      {% if pode_cancelar %}
+        <form method="post" action="{{ url_for('transferencias.cancelar', transf_id=t.id) }}"
+              onsubmit="return confirm('Cancelar a transferência e estornar as reservas?')">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="btn btn-outline-danger"><i class="bi bi-x-circle me-1"></i>Cancelar</button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card card-stat"><div class="card-body">
+      <h2 class="h6 text-secondary mb-3">Linha do tempo</h2>
+      <ul class="list-unstyled small mb-0">
+        <li class="mb-2"><i class="bi bi-send text-info me-1"></i>
+          <strong>Enviada</strong> · {{ t.enviado_em | datahora }}</li>
+        {% if t.recebido_em %}
+          <li class="mb-2"><i class="bi bi-clipboard-check text-success me-1"></i>
+            <strong>Recebida</strong> · {{ t.recebido_em | datahora }}</li>
+        {% endif %}
+        {% if t.corrigido_em %}
+          <li class="mb-2"><i class="bi bi-wrench text-primary me-1"></i>
+            <strong>{{ 'Corrigida' if t.status == 'CORRIGIDA' else 'Cancelada' }}</strong> · {{ t.corrigido_em | datahora }}</li>
+        {% endif %}
+      </ul>
+    </div></div>
+  </div>
+</div>
+{% endblock %}

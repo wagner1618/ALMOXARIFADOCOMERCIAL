@@ -12,6 +12,7 @@ from app.models.organizacao import Organizacao
 from app.models.produto import Produto
 from app.models.rbac import Papel, Permissao, UsuarioPapel, papel_permissao
 from app.models.setor import Setor
+from app.models.transferencia import Transferencia, TransferenciaItem
 from app.models.usuario import Usuario
 from app.models.visibilidade import RegraVisibilidade
 
@@ -29,6 +30,8 @@ __all__ = [
     "RegraVisibilidade",
     "SaldoEstoque",
     "Setor",
+    "Transferencia",
+    "TransferenciaItem",
     "Usuario",
     "UsuarioPapel",
     "papel_permissao",

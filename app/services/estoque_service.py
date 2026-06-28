@@ -44,6 +44,11 @@ def obter_saldo(produto_id: int, setor_id: int) -> SaldoEstoque | None:
     )
 
 
+def obter_ou_criar_saldo(organizacao_id: int, produto_id: int, setor_id: int) -> SaldoEstoque:
+    """Versão pública de ``_saldo_ou_cria`` (usada por outros serviços)."""
+    return _saldo_ou_cria(organizacao_id, produto_id, setor_id)
+
+
 def _saldo_ou_cria(organizacao_id: int, produto_id: int, setor_id: int) -> SaldoEstoque:
     saldo = obter_saldo(produto_id, setor_id)
     if saldo is None:

@@ -10,8 +10,9 @@ from app.extensions import db
 from app.models.movimentacao import Movimentacao
 from app.models.produto import Produto
 from app.models.setor import Setor
+from app.models.transferencia import ENVIADA, RECEBIDA_COM_DIVERGENCIA, Transferencia
 from app.models.usuario import Usuario
-from app.security import setores_visiveis_ids
+from app.security import setores_operacionais_ids, setores_visiveis_ids
 from app.services import alertas
 
 bp = Blueprint("main", __name__)
@@ -55,6 +56,7 @@ def dashboard():
     }
 
     visiveis = setores_visiveis_ids(current_user)
+    operacionais = setores_operacionais_ids(current_user)
     itens_alerta = alertas.itens_em_alerta(org_id, setor_ids=visiveis)
     ultimas_mov = db.session.scalars(
         select(Movimentacao)
@@ -62,10 +64,28 @@ def dashboard():
         .order_by(Movimentacao.criado_em.desc(), Movimentacao.id.desc())
         .limit(8)
     ).all()
+
+    pendentes_receber = db.session.scalars(
+        select(Transferencia).where(
+            Transferencia.organizacao_id == org_id,
+            Transferencia.status == ENVIADA,
+            Transferencia.setor_destino_id.in_(operacionais or [0]),
+        )
+    ).all()
+    divergencias = db.session.scalars(
+        select(Transferencia).where(
+            Transferencia.organizacao_id == org_id,
+            Transferencia.status == RECEBIDA_COM_DIVERGENCIA,
+            Transferencia.setor_origem_id.in_(operacionais or [0]),
+        )
+    ).all()
+
     return render_template(
         "dashboard.html",
         cartoes=cartoes,
         itens_alerta=itens_alerta[:8],
         total_alertas=len(itens_alerta),
         ultimas_mov=ultimas_mov,
+        pendentes_receber=pendentes_receber,
+        divergencias=divergencias,
     )

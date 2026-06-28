@@ -1,0 +1,54 @@
+{% extends "layout_app.html" %}
+{% block titulo %}Receber transferência #{{ t.numero }}{% endblock %}
+{% block cabecalho %}Receber transferência #{{ t.numero }}{% endblock %}
+
+{% block conteudo %}
+<div class="card card-stat"><div class="card-body p-4">
+  <p class="text-secondary">
+    Confira fisicamente cada item e informe a quantidade efetivamente recebida.
+    Ao confirmar, <strong>o material entra imediatamente no estoque do destino</strong>.
+    Divergências (falta/sobra) ficam registradas para correção pelo setor de origem.
+  </p>
+  <p class="mb-3"><strong>{{ t.origem.nome }}</strong> <i class="bi bi-arrow-right"></i>
+     <strong>{{ t.destino.nome }}</strong></p>
+
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="table-responsive">
+      <table class="table align-middle">
+        <thead class="table-light"><tr>
+          <th>Produto</th><th class="text-end">Enviada</th>
+          <th style="width:160px">Recebida</th><th style="min-width:220px">Motivo (se divergir)</th>
+        </tr></thead>
+        <tbody>
+          {% for i in t.itens %}
+          <tr>
+            <td>{{ i.produto.nome if i.produto else '—' }}
+                <small class="text-secondary">({{ i.produto.unidade if i.produto }})</small></td>
+            <td class="text-end">{{ i.quantidade_enviada | numero(3) }}</td>
+            <td>
+              <input type="number" step="0.001" min="0" name="recebida_{{ i.id }}"
+                     value="{{ i.quantidade_enviada }}" class="form-control form-control-sm">
+            </td>
+            <td>
+              <input type="text" name="motivo_{{ i.id }}" class="form-control form-control-sm"
+                     placeholder="ex.: 2 unidades avariadas">
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Observações do recebimento</label>
+      <textarea name="observacoes" class="form-control" rows="2"></textarea>
+    </div>
+
+    <div class="d-flex gap-2">
+      <button class="btn btn-success"><i class="bi bi-check-lg me-1"></i>Confirmar recebimento</button>
+      <a href="{{ url_for('transferencias.detalhe', transf_id=t.id) }}" class="btn btn-light">Cancelar</a>
+    </div>
+  </form>
+</div></div>
+{% endblock %}
