@@ -116,7 +116,9 @@ def definir_status_processo(processo: ProcessoContratacao, status: str, *, commi
 
 
 # ============================================================= Ata de SRP === #
-def criar_ata(organizacao_id: int, *, dados: dict[str, Any], itens: list[dict], commit: bool = True):
+def criar_ata(
+    organizacao_id: int, *, dados: dict[str, Any], itens: list[dict], commit: bool = True
+):
     _por_id(ProcessoContratacao, organizacao_id, dados.get("processo_id"), "Processo")
     fornecedor = compra_service._validar_fornecedor(organizacao_id, dados.get("fornecedor_id"))
     if fornecedor is None:
@@ -150,7 +152,9 @@ def _ata_item(organizacao_id: int, linha: dict) -> AtaItem:
 
 
 def _saldo_valor_ata(ata: AtaRegistroPrecos) -> Decimal:
-    return _q2(sum((_dec(i.saldo_quantidade) * _dec(i.preco_registrado) for i in ata.itens), Decimal(0)))
+    return _q2(
+        sum((_dec(i.saldo_quantidade) * _dec(i.preco_registrado) for i in ata.itens), Decimal(0))
+    )
 
 
 # ============================================================== Contrato === #
@@ -488,7 +492,8 @@ def pagar(
     saldo = _dec(liquidacao.valor) - liquidacao.valor_pago
     if valor > saldo:
         raise ErroPublico(
-            f"Pagamento excede o saldo da liquidação (disponível R$ {_q2(saldo)}, pagamento R$ {valor})."
+            f"Pagamento excede o saldo da liquidação "
+            f"(disponível R$ {_q2(saldo)}, pagamento R$ {valor})."
         )
 
     pagamento = Pagamento(

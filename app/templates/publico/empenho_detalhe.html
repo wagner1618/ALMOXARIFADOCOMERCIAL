@@ -1,0 +1,82 @@
+{% extends "layout_app.html" %}
+{% from "partials/forms.html" import campo %}
+{% block titulo %}Empenho {{ empenho.numero }}{% endblock %}
+{% block cabecalho %}Empenho {{ empenho.numero }}{% endblock %}
+
+{% block conteudo %}
+<div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-2">
+  <div>
+    <span class="badge text-bg-{{ empenho.cor_status }} fs-6">{{ empenho.rotulo_status }}</span>
+    <span class="text-secondary ms-2">{{ empenho.rotulo_tipo }}</span>
+  </div>
+  {% if empenho.status != 'ANULADO' and empenho.valor_liquidado == 0 %}
+    <form method="post" action="{{ url_for('publico.empenho_anular', empenho_id=empenho.id) }}"
+          onsubmit="return confirm('Anular o empenho e restaurar os saldos?')">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="btn btn-outline-danger"><i class="bi bi-x-circle me-1"></i>Anular</button>
+    </form>
+  {% endif %}
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-7">
+    {# Rastreabilidade item → empenho → contrato/ata → processo (§7.10, transparência) #}
+    <div class="card card-stat mb-3"><div class="card-body">
+      <h2 class="h6">Rastreabilidade</h2>
+      <dl class="row mb-0">
+        <dt class="col-sm-4 text-secondary">Valor empenhado</dt><dd class="col-sm-8">{{ empenho.valor | moeda }}</dd>
+        <dt class="col-sm-4 text-secondary">Saldo a liquidar</dt><dd class="col-sm-8">{{ empenho.saldo_a_liquidar | moeda }}</dd>
+        <dt class="col-sm-4 text-secondary">Liquidado</dt><dd class="col-sm-8">{{ empenho.valor_liquidado | moeda }}</dd>
+        <dt class="col-sm-4 text-secondary">Dotação</dt>
+        <dd class="col-sm-8">{{ empenho.dotacao.descricao or empenho.dotacao.programa_trabalho or empenho.dotacao_id }}</dd>
+        <dt class="col-sm-4 text-secondary">Contrato</dt>
+        <dd class="col-sm-8">{% if empenho.contrato %}<a href="{{ url_for('publico.contrato_detalhe', contrato_id=empenho.contrato_id) }}">{{ empenho.contrato.numero }}</a>{% else %}—{% endif %}</dd>
+        <dt class="col-sm-4 text-secondary">Ata</dt>
+        <dd class="col-sm-8">{% if empenho.ata %}<a href="{{ url_for('publico.ata_detalhe', ata_id=empenho.ata_id) }}">{{ empenho.ata.numero }}</a>{% else %}—{% endif %}</dd>
+        <dt class="col-sm-4 text-secondary">Processo</dt>
+        <dd class="col-sm-8">{% if empenho.processo %}<a href="{{ url_for('publico.processo_detalhe', processo_id=empenho.processo_id) }}">{{ empenho.processo.numero_processo }}</a>{% else %}—{% endif %}</dd>
+        <dt class="col-sm-4 text-secondary">Fornecedor</dt>
+        <dd class="col-sm-8">{{ empenho.fornecedor.nome if empenho.fornecedor else '—' }}</dd>
+      </dl>
+    </div></div>
+
+    <div class="card card-stat"><div class="card-body">
+      <h2 class="h6">Liquidações</h2>
+      {% if not liquidacoes %}
+        <p class="text-secondary small mb-0">Nenhuma liquidação registrada.</p>
+      {% else %}
+      <table class="table table-sm align-middle mb-0">
+        <thead class="table-light"><tr><th>#</th><th>Data</th><th class="text-end">Valor</th><th class="text-center">Status</th></tr></thead>
+        <tbody>
+          {% for liq in liquidacoes %}
+          <tr>
+            <td>{{ liq.id }}</td><td>{{ liq.data | data if liq.data else '—' }}</td>
+            <td class="text-end">{{ liq.valor | moeda }}</td>
+            <td class="text-center"><span class="badge text-bg-{{ 'success' if liq.status == 'PAGA' else 'info' }}">{{ liq.status }}</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% endif %}
+    </div></div>
+  </div>
+
+  <div class="col-lg-5">
+    {% if empenho.status != 'ANULADO' and empenho.saldo_a_liquidar > 0 and current_user.tem_permissao('despesa.liquidar') %}
+    <div class="card card-stat"><div class="card-body">
+      <h2 class="h6">Liquidar despesa</h2>
+      <p class="text-secondary small">Exige nota fiscal e recebimento definitivo com atesto.</p>
+      <form method="post" action="{{ url_for('publico.empenho_liquidar', empenho_id=empenho.id) }}" novalidate>
+        {{ liq_form.hidden_tag() }}
+        {{ campo(liq_form.valor) }}
+        {{ campo(liq_form.nota_fiscal_id) }}
+        {{ campo(liq_form.recebimento_id) }}
+        {{ campo(liq_form.observacoes) }}
+        {{ liq_form.submit(class="btn btn-primary w-100") }}
+      </form>
+    </div></div>
+    {% endif %}
+  </div>
+</div>
+<a href="{{ url_for('publico.empenhos') }}" class="btn btn-light mt-3"><i class="bi bi-arrow-left me-1"></i>Voltar</a>
+{% endblock %}

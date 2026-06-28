@@ -1,0 +1,32 @@
+{% extends "layout_app.html" %}
+{% from "partials/forms.html" import campo %}
+{% block titulo %}{{ titulo }}{% endblock %}
+{% block cabecalho %}{{ titulo }}{% endblock %}
+
+{% block conteudo %}
+<div class="card card-stat"><div class="card-body p-4">
+  <form method="post" novalidate>
+    {{ form.hidden_tag() }}
+    <div class="row">
+      <div class="col-md-6">{{ campo(form.dotacao_id, ajuda="O empenho não pode exceder o saldo disponível da dotação.") }}</div>
+      <div class="col-md-3">{{ campo(form.numero) }}</div>
+      <div class="col-md-3">{{ campo(form.tipo) }}</div>
+    </div>
+    <div class="row">
+      <div class="col-md-3">{{ campo(form.valor) }}</div>
+      <div class="col-md-3">{{ campo(form.data) }}</div>
+      <div class="col-md-6">{{ campo(form.fornecedor_id) }}</div>
+    </div>
+    <div class="row">
+      <div class="col-md-4">{{ campo(form.contrato_id, ajuda="Consome saldo do contrato.") }}</div>
+      <div class="col-md-4">{{ campo(form.ata_id, ajuda="Consome saldo da ata.") }}</div>
+      <div class="col-md-4">{{ campo(form.processo_id) }}</div>
+    </div>
+    {{ campo(form.observacoes) }}
+    <div class="d-flex gap-2 mt-2">
+      {{ form.submit(class="btn btn-primary") }}
+      <a href="{{ url_for('publico.empenhos') }}" class="btn btn-light">Cancelar</a>
+    </div>
+  </form>
+</div></div>
+{% endblock %}

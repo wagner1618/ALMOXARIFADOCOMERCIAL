@@ -1,0 +1,29 @@
+{% extends "layout_app.html" %}
+{% from "partials/forms.html" import campo %}
+{% block titulo %}{{ titulo }}{% endblock %}
+{% block cabecalho %}{{ titulo }}{% endblock %}
+
+{% block conteudo %}
+<div class="card card-stat"><div class="card-body p-4">
+  <form method="post" novalidate>
+    {{ form.hidden_tag() }}
+    <div class="row">
+      <div class="col-md-3">{{ campo(form.exercicio) }}</div>
+      <div class="col-md-9">{{ campo(form.descricao) }}</div>
+    </div>
+    <div class="row">
+      <div class="col-md-4">{{ campo(form.programa_trabalho) }}</div>
+      <div class="col-md-4">{{ campo(form.natureza_despesa) }}</div>
+      <div class="col-md-4">{{ campo(form.fonte_recurso) }}</div>
+    </div>
+    <div class="row">
+      <div class="col-md-8">{{ campo(form.unidade_orcamentaria) }}</div>
+      <div class="col-md-4">{{ campo(form.valor_dotado) }}</div>
+    </div>
+    <div class="d-flex gap-2 mt-2">
+      {{ form.submit(class="btn btn-primary") }}
+      <a href="{{ url_for('publico.dotacoes') }}" class="btn btn-light">Cancelar</a>
+    </div>
+  </form>
+</div></div>
+{% endblock %}

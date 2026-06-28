@@ -62,6 +62,24 @@
     {{ item('compras.notas', 'Notas fiscais', 'bi-receipt', 'compra.nota_fiscal',
             ativos=['compras.notas','compras.nota_nova','compras.nota_detalhe']) }}
 
+    {% if organizacao_atual and organizacao_atual.modo_compra == 'PUBLICO' %}
+    <div class="nav-section">Compras públicas</div>
+    {{ item('publico.dotacoes', 'Dotações', 'bi-wallet2', 'dotacao.gerenciar',
+            ativos=['publico.dotacoes','publico.dotacao_nova']) }}
+    {{ item('publico.processos', 'Processos', 'bi-file-earmark-text', 'licitacao.gerenciar',
+            ativos=['publico.processos','publico.processo_novo','publico.processo_detalhe']) }}
+    {{ item('publico.atas', 'Atas de SRP', 'bi-journal-text', 'ata.gerenciar',
+            ativos=['publico.atas','publico.ata_nova','publico.ata_detalhe']) }}
+    {{ item('publico.contratos', 'Contratos', 'bi-file-earmark-ruled', 'contrato.gerenciar',
+            ativos=['publico.contratos','publico.contrato_novo','publico.contrato_detalhe']) }}
+    {{ item('publico.empenhos', 'Empenhos', 'bi-bookmark-check', 'empenho.emitir',
+            ativos=['publico.empenhos','publico.empenho_novo','publico.empenho_detalhe']) }}
+    {{ item('publico.recebimentos', 'Recebimentos', 'bi-box-arrow-in-down', 'recebimento.definitivo',
+            ativos=['publico.recebimentos','publico.recebimento_novo']) }}
+    {{ item('publico.liquidacoes', 'Liquid. e pagto.', 'bi-cash-coin', 'despesa.liquidar',
+            ativos=['publico.liquidacoes']) }}
+    {% endif %}
+
     <div class="nav-section">Cadastros</div>
     {{ item('setores.listar', 'Setores', 'bi-diagram-3', 'setor.gerenciar') }}
     {{ item('categorias.listar', 'Categorias', 'bi-tags', 'setor.gerenciar') }}

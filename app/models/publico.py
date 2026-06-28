@@ -225,7 +225,9 @@ class AtaItem(TenantMixin, TimestampMixin, db.Model):
         ForeignKey("produtos.id", ondelete="SET NULL"), nullable=True, index=True
     )
     descricao: Mapped[str] = mapped_column(String(255), nullable=False)
-    quantidade_registrada: Mapped[Decimal] = mapped_column(Numeric(14, 3), default=0, nullable=False)
+    quantidade_registrada: Mapped[Decimal] = mapped_column(
+        Numeric(14, 3), default=0, nullable=False
+    )
     preco_registrado: Mapped[Decimal] = mapped_column(Numeric(14, 4), default=0, nullable=False)
     saldo_quantidade: Mapped[Decimal] = mapped_column(Numeric(14, 3), default=0, nullable=False)
 

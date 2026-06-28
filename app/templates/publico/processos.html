@@ -1,0 +1,64 @@
+{% extends "layout_app.html" %}
+{% from "partials/forms.html" import page_actions %}
+{% block titulo %}Processos de contratação{% endblock %}
+{% block cabecalho %}Processos de contratação{% endblock %}
+
+{% block conteudo %}
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+  <p class="text-secondary mb-0">Licitações e contratações diretas (Lei 14.133/2021).</p>
+  {{ page_actions('Novo processo', url_for('publico.processo_novo')) }}
+</div>
+
+<form method="get" class="card card-stat mb-3"><div class="card-body py-3">
+  <div class="row g-2 align-items-end">
+    <div class="col-md-3">
+      <label class="form-label small mb-1">Status</label>
+      <select name="status" class="form-select" onchange="this.form.submit()">
+        <option value="">Todos</option>
+        {% for valor, rotulo in status_opcoes %}
+          <option value="{{ valor }}" {{ 'selected' if status == valor }}>{{ rotulo }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label small mb-1">Modalidade</label>
+      <select name="modalidade" class="form-select" onchange="this.form.submit()">
+        <option value="">Todas</option>
+        {% for valor, rotulo in modalidade_opcoes %}
+          <option value="{{ valor }}" {{ 'selected' if modalidade == valor }}>{{ rotulo }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+</div></form>
+
+{% if not paginacao.items %}
+  <div class="card card-stat"><div class="card-body text-center text-secondary py-5">
+    <i class="bi bi-file-earmark-text fs-1 d-block mb-2"></i>Nenhum processo encontrado.
+  </div></div>
+{% else %}
+<div class="card card-stat"><div class="table-responsive">
+  <table class="table table-hover align-middle mb-0">
+    <thead class="table-light"><tr>
+      <th>Processo</th><th>Objeto</th><th>Modalidade</th>
+      <th class="text-end">Estimado</th><th class="text-center">Status</th><th></th>
+    </tr></thead>
+    <tbody>
+      {% for p in paginacao.items %}
+      <tr>
+        <td><strong>{{ p.numero_processo }}</strong>{% if p.is_srp %}<br><small class="badge text-bg-info">SRP</small>{% endif %}</td>
+        <td class="text-truncate" style="max-width:280px">{{ p.objeto }}</td>
+        <td>{{ p.rotulo_modalidade }}</td>
+        <td class="text-end">{{ p.valor_estimado | moeda }}</td>
+        <td class="text-center"><span class="badge text-bg-{{ p.cor_status }}">{{ p.rotulo_status }}</span></td>
+        <td class="text-end">
+          <a href="{{ url_for('publico.processo_detalhe', processo_id=p.id) }}"
+             class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i></a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+{% endif %}
+{% endblock %}

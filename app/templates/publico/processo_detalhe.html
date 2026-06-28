@@ -1,0 +1,41 @@
+{% extends "layout_app.html" %}
+{% block titulo %}Processo {{ processo.numero_processo }}{% endblock %}
+{% block cabecalho %}Processo {{ processo.numero_processo }}{% endblock %}
+
+{% block conteudo %}
+<div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-2">
+  <div>
+    <span class="badge text-bg-{{ processo.cor_status }} fs-6">{{ processo.rotulo_status }}</span>
+    <span class="text-secondary ms-2">{{ processo.rotulo_modalidade }}{% if processo.is_srp %} · SRP{% endif %}</span>
+  </div>
+  <form method="post" action="{{ url_for('publico.processo_status', processo_id=processo.id) }}"
+        class="d-flex gap-2 align-items-center">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <select name="status" class="form-select form-select-sm" style="width:auto">
+      {% for valor, rotulo in status_opcoes %}
+        <option value="{{ valor }}" {{ 'selected' if processo.status == valor }}>{{ rotulo }}</option>
+      {% endfor %}
+    </select>
+    <button class="btn btn-sm btn-primary">Atualizar status</button>
+  </form>
+</div>
+
+<div class="card card-stat mb-3"><div class="card-body">
+  <dl class="row mb-0">
+    <dt class="col-sm-3 text-secondary">Objeto</dt><dd class="col-sm-9">{{ processo.objeto }}</dd>
+    <dt class="col-sm-3 text-secondary">Valor estimado</dt><dd class="col-sm-9">{{ processo.valor_estimado | moeda }}</dd>
+    <dt class="col-sm-3 text-secondary">Setor demandante</dt><dd class="col-sm-9">{{ processo.setor.nome if processo.setor else '—' }}</dd>
+    <dt class="col-sm-3 text-secondary">Abertura</dt><dd class="col-sm-9">{{ processo.data_abertura | data if processo.data_abertura else '—' }}</dd>
+    {% if processo.data_homologacao %}
+      <dt class="col-sm-3 text-secondary">Homologação</dt><dd class="col-sm-9">{{ processo.data_homologacao | data }}</dd>
+    {% endif %}
+    {% if processo.numero_pncp %}
+      <dt class="col-sm-3 text-secondary">PNCP</dt><dd class="col-sm-9">{{ processo.numero_pncp }}</dd>
+    {% endif %}
+    {% if processo.observacoes %}
+      <dt class="col-sm-3 text-secondary">Observações</dt><dd class="col-sm-9">{{ processo.observacoes }}</dd>
+    {% endif %}
+  </dl>
+</div></div>
+<a href="{{ url_for('publico.processos') }}" class="btn btn-light"><i class="bi bi-arrow-left me-1"></i>Voltar</a>
+{% endblock %}

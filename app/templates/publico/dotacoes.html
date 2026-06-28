@@ -1,0 +1,38 @@
+{% extends "layout_app.html" %}
+{% from "partials/forms.html" import page_actions %}
+{% block titulo %}Dotações orçamentárias{% endblock %}
+{% block cabecalho %}Dotações orçamentárias{% endblock %}
+
+{% block conteudo %}
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+  <p class="text-secondary mb-0">Créditos orçamentários; o empenho reserva recurso decrementando o saldo.</p>
+  {{ page_actions('Nova dotação', url_for('publico.dotacao_nova')) }}
+</div>
+
+{% if not paginacao.items %}
+  <div class="card card-stat"><div class="card-body text-center text-secondary py-5">
+    <i class="bi bi-wallet2 fs-1 d-block mb-2"></i>Nenhuma dotação cadastrada.
+  </div></div>
+{% else %}
+<div class="card card-stat"><div class="table-responsive">
+  <table class="table table-hover align-middle mb-0">
+    <thead class="table-light"><tr>
+      <th>Exerc.</th><th>Descrição</th><th>Programa</th>
+      <th class="text-end">Dotado</th><th class="text-end">Empenhado</th><th class="text-end">Disponível</th>
+    </tr></thead>
+    <tbody>
+      {% for d in paginacao.items %}
+      <tr>
+        <td>{{ d.exercicio }}</td>
+        <td>{{ d.descricao or '—' }}</td>
+        <td class="text-secondary">{{ d.programa_trabalho or '—' }}</td>
+        <td class="text-end">{{ d.valor_dotado | moeda }}</td>
+        <td class="text-end">{{ d.valor_empenhado | moeda }}</td>
+        <td class="text-end {{ 'text-danger' if d.saldo_disponivel < 0 }}">{{ d.saldo_disponivel | moeda }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+{% endif %}
+{% endblock %}

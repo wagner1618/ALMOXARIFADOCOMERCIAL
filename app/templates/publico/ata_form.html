@@ -1,0 +1,64 @@
+{% extends "layout_app.html" %}
+{% from "partials/forms.html" import campo %}
+{% block titulo %}{{ titulo }}{% endblock %}
+{% block cabecalho %}{{ titulo }}{% endblock %}
+
+{% block conteudo %}
+<div class="card card-stat"><div class="card-body p-4"
+     x-data='{ linhas: [] }'
+     x-init="if (linhas.length === 0) linhas.push({ produto_id: '0', descricao: '', quantidade: '1', valor_unitario: '0' })">
+  <form method="post" novalidate>
+    {{ form.hidden_tag() }}
+    <div class="row">
+      <div class="col-md-3">{{ campo(form.numero) }}</div>
+      <div class="col-md-5">{{ campo(form.fornecedor_id) }}</div>
+      <div class="col-md-4">{{ campo(form.processo_id) }}</div>
+    </div>
+    <div class="row">
+      <div class="col-md-3">{{ campo(form.vigencia_inicio) }}</div>
+      <div class="col-md-3">{{ campo(form.vigencia_fim) }}</div>
+      <div class="col-md-6">{{ campo(form.observacoes) }}</div>
+    </div>
+
+    <h2 class="h6 text-secondary mt-2">Itens registrados</h2>
+    <div class="table-responsive">
+      <table class="table align-middle">
+        <thead class="table-light"><tr>
+          <th style="min-width:220px">Produto (catálogo)</th>
+          <th style="min-width:200px">Descrição</th>
+          <th style="width:120px">Qtd.</th>
+          <th style="width:150px">Preço registrado (R$)</th>
+          <th></th>
+        </tr></thead>
+        <tbody>
+          <template x-for="(linha, idx) in linhas" :key="idx">
+            <tr>
+              <td>
+                <select name="item_produto_id" class="form-select form-select-sm" x-model="linha.produto_id">
+                  {% for pid, plabel in produtos %}<option value="{{ pid }}">{{ plabel }}</option>{% endfor %}
+                </select>
+              </td>
+              <td><input name="item_descricao" class="form-control form-control-sm" x-model="linha.descricao"></td>
+              <td><input type="number" step="0.001" min="0" name="item_quantidade"
+                         class="form-control form-control-sm" x-model="linha.quantidade"></td>
+              <td><input type="number" step="0.0001" min="0" name="item_valor_unitario"
+                         class="form-control form-control-sm" x-model="linha.valor_unitario"></td>
+              <td><button type="button" class="btn btn-sm btn-outline-danger"
+                          @click="linhas.splice(idx, 1)" x-show="linhas.length > 1"><i class="bi bi-x"></i></button></td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
+    <button type="button" class="btn btn-sm btn-outline-secondary mb-3"
+            @click="linhas.push({ produto_id: '0', descricao: '', quantidade: '1', valor_unitario: '0' })">
+      <i class="bi bi-plus-lg me-1"></i>Adicionar item
+    </button>
+
+    <div class="d-flex gap-2 mt-2">
+      {{ form.submit(class="btn btn-primary") }}
+      <a href="{{ url_for('publico.atas') }}" class="btn btn-light">Cancelar</a>
+    </div>
+  </form>
+</div></div>
+{% endblock %}

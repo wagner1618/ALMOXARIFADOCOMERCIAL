@@ -1,0 +1,37 @@
+{% extends "layout_app.html" %}
+{% from "partials/forms.html" import page_actions %}
+{% block titulo %}Recebimentos{% endblock %}
+{% block cabecalho %}Recebimentos de material{% endblock %}
+
+{% block conteudo %}
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+  <p class="text-secondary mb-0">O recebimento <strong>definitivo</strong> conforme dispara a entrada valorada (art. 140).</p>
+  {{ page_actions('Novo recebimento', url_for('publico.recebimento_novo')) }}
+</div>
+
+{% if not paginacao.items %}
+  <div class="card card-stat"><div class="card-body text-center text-secondary py-5">
+    <i class="bi bi-box-arrow-in-down fs-1 d-block mb-2"></i>Nenhum recebimento registrado.
+  </div></div>
+{% else %}
+<div class="card card-stat"><div class="table-responsive">
+  <table class="table table-hover align-middle mb-0">
+    <thead class="table-light"><tr>
+      <th>#</th><th>Tipo</th><th>Nota fiscal</th><th>Setor</th><th>Data</th><th class="text-center">Conforme</th>
+    </tr></thead>
+    <tbody>
+      {% for r in paginacao.items %}
+      <tr>
+        <td>{{ r.id }}</td>
+        <td><span class="badge text-bg-{{ 'success' if r.is_definitivo else 'secondary' }}">{{ r.rotulo_tipo }}</span></td>
+        <td>{{ r.nota_fiscal.numero if r.nota_fiscal else '—' }}</td>
+        <td class="text-secondary">{{ r.setor.nome if r.setor else '—' }}</td>
+        <td>{{ r.data | data if r.data else '—' }}</td>
+        <td class="text-center">{% if r.conforme %}<i class="bi bi-check-circle text-success"></i>{% else %}<i class="bi bi-x-circle text-danger"></i>{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+{% endif %}
+{% endblock %}

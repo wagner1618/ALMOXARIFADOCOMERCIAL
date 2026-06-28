@@ -1,0 +1,31 @@
+{% extends "layout_app.html" %}
+{% from "partials/forms.html" import campo %}
+{% block titulo %}{{ titulo }}{% endblock %}
+{% block cabecalho %}{{ titulo }}{% endblock %}
+
+{% block conteudo %}
+<div class="card card-stat"><div class="card-body p-4">
+  <form method="post" novalidate>
+    {{ form.hidden_tag() }}
+    <div class="row">
+      <div class="col-md-4">{{ campo(form.numero_processo) }}</div>
+      <div class="col-md-4">{{ campo(form.modalidade) }}</div>
+      <div class="col-md-4">{{ campo(form.procedimento_auxiliar) }}</div>
+    </div>
+    {{ campo(form.objeto) }}
+    <div class="row">
+      <div class="col-md-4">{{ campo(form.valor_estimado) }}</div>
+      <div class="col-md-4">{{ campo(form.setor_id) }}</div>
+      <div class="col-md-4">{{ campo(form.data_abertura) }}</div>
+    </div>
+    <div class="row">
+      <div class="col-md-4">{{ campo(form.numero_pncp) }}</div>
+      <div class="col-md-8">{{ campo(form.observacoes) }}</div>
+    </div>
+    <div class="d-flex gap-2 mt-2">
+      {{ form.submit(class="btn btn-primary") }}
+      <a href="{{ url_for('publico.processos') }}" class="btn btn-light">Cancelar</a>
+    </div>
+  </form>
+</div></div>
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends "layout_app.html" %}
+{% from "partials/forms.html" import campo %}
+{% block titulo %}Contrato {{ contrato.numero }}{% endblock %}
+{% block cabecalho %}Contrato {{ contrato.numero }}{% endblock %}
+
+{% block conteudo %}
+<div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-2">
+  <div>
+    <span class="badge text-bg-{{ contrato.cor_status }} fs-6">{{ contrato.rotulo_status }}</span>
+    {% if contrato.vencido %}<span class="badge text-bg-danger ms-1">Vencido</span>{% endif %}
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-8">
+    <div class="card card-stat mb-3"><div class="card-body">
+      <dl class="row mb-0">
+        <dt class="col-sm-3 text-secondary">Objeto</dt><dd class="col-sm-9">{{ contrato.objeto }}</dd>
+        <dt class="col-sm-3 text-secondary">Fornecedor</dt><dd class="col-sm-9">{{ contrato.fornecedor.nome }}</dd>
+        <dt class="col-sm-3 text-secondary">Vigência</dt>
+        <dd class="col-sm-9">{{ contrato.vigencia_inicio | data if contrato.vigencia_inicio else '—' }} – {{ contrato.vigencia_fim | data if contrato.vigencia_fim else '—' }}</dd>
+        <dt class="col-sm-3 text-secondary">Fiscal</dt><dd class="col-sm-9">{{ contrato.fiscal.nome if contrato.fiscal else '—' }}</dd>
+        <dt class="col-sm-3 text-secondary">Gestor</dt><dd class="col-sm-9">{{ contrato.gestor.nome if contrato.gestor else '—' }}</dd>
+        {% if contrato.garantia %}<dt class="col-sm-3 text-secondary">Garantia</dt><dd class="col-sm-9">{{ contrato.garantia }}</dd>{% endif %}
+      </dl>
+    </div></div>
+
+    <div class="card card-stat mb-3"><div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead class="table-light"><tr>
+          <th>Item</th><th class="text-end">Qtd.</th><th class="text-end">Preço</th><th class="text-end">Saldo (R$)</th>
+        </tr></thead>
+        <tbody>
+          {% for it in contrato.itens %}
+          <tr>
+            <td>{{ it.descricao }}</td>
+            <td class="text-end">{{ it.quantidade | numero(3) }}</td>
+            <td class="text-end">{{ it.preco_unitario | moeda }}</td>
+            <td class="text-end">{{ it.saldo_valor | moeda }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot><tr class="fw-bold">
+          <td colspan="3" class="text-end">Valor global / saldo</td>
+          <td class="text-end">{{ contrato.valor_global | moeda }} / {{ contrato.saldo_valor | moeda }}</td>
+        </tr></tfoot>
+      </table>
+    </div></div>
+
+    {% if contrato.aditivos %}
+    <div class="card card-stat"><div class="card-body">
+      <h2 class="h6">Aditivos</h2>
+      <ul class="list-group list-group-flush">
+        {% for ad in contrato.aditivos %}
+        <li class="list-group-item d-flex justify-content-between">
+          <span><span class="badge text-bg-secondary me-2">{{ ad.rotulo_tipo }}</span>{{ ad.descricao or ad.numero or '—' }}</span>
+          <span class="text-secondary">
+            {% if ad.valor %}{{ ad.valor | moeda }}{% endif %}
+            {% if ad.nova_vigencia %} · até {{ ad.nova_vigencia | data }}{% endif %}
+          </span>
+        </li>
+        {% endfor %}
+      </ul>
+    </div></div>
+    {% endif %}
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card card-stat"><div class="card-body">
+      <h2 class="h6">Registrar aditivo</h2>
+      <form method="post" action="{{ url_for('publico.contrato_aditivo', contrato_id=contrato.id) }}" novalidate>
+        {{ aditivo_form.hidden_tag() }}
+        {{ campo(aditivo_form.tipo) }}
+        {{ campo(aditivo_form.numero) }}
+        {{ campo(aditivo_form.valor, ajuda="Para aditivo de valor (acréscimo).") }}
+        {{ campo(aditivo_form.nova_vigencia, ajuda="Para aditivo de prazo.") }}
+        {{ campo(aditivo_form.descricao) }}
+        {{ aditivo_form.submit(class="btn btn-primary w-100") }}
+      </form>
+    </div></div>
+  </div>
+</div>
+<a href="{{ url_for('publico.contratos') }}" class="btn btn-light mt-3"><i class="bi bi-arrow-left me-1"></i>Voltar</a>
+{% endblock %}
