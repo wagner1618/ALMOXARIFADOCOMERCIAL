@@ -18,6 +18,19 @@ from app.models.localizacao import Localizacao
 from app.models.movimentacao import LoteMovimentacao, Movimentacao
 from app.models.organizacao import Organizacao
 from app.models.produto import Produto
+from app.models.publico import (
+    AtaItem,
+    AtaRegistroPrecos,
+    Contrato,
+    ContratoItem,
+    DotacaoOrcamentaria,
+    Empenho,
+    Liquidacao,
+    Pagamento,
+    ProcessoContratacao,
+    Recebimento,
+    TermoAditivo,
+)
 from app.models.rbac import Papel, Permissao, UsuarioPapel, papel_permissao
 from app.models.setor import Setor
 from app.models.transferencia import Transferencia, TransferenciaItem
@@ -25,25 +38,36 @@ from app.models.usuario import Usuario
 from app.models.visibilidade import RegraVisibilidade
 
 __all__ = [
+    "AtaItem",
+    "AtaRegistroPrecos",
     "Ativo",
     "Auditoria",
     "Categoria",
+    "Contrato",
+    "ContratoItem",
     "DefinicaoCampo",
+    "DotacaoOrcamentaria",
+    "Empenho",
     "Fornecedor",
+    "Liquidacao",
     "Localizacao",
     "LoteMovimentacao",
     "Movimentacao",
     "NotaFiscal",
     "NotaFiscalItem",
     "Organizacao",
+    "Pagamento",
     "Papel",
     "PedidoCompra",
     "PedidoCompraItem",
     "Permissao",
+    "ProcessoContratacao",
     "Produto",
+    "Recebimento",
     "RegraVisibilidade",
     "SaldoEstoque",
     "Setor",
+    "TermoAditivo",
     "Transferencia",
     "TransferenciaItem",
     "Usuario",
